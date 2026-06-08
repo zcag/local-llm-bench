@@ -88,8 +88,9 @@ use) doesn't hold here; the steady-state numbers match the burst numbers.
   (tanking its needle test). They *can* code; they just can't tool-call through
   this serving path. **For agentic use on mlx_lm.server, use the Qwen3-Coder family.**
 - **†qwen2.5 HumanEval+** first run hit 0.0 — a harness artifact (concurrent
-  generation timeouts at 7 t/s, since MLX doesn't batch), not the model. Re-running
-  at concurrency 1. Doesn't change any ranking (disqualified on 7 t/s speed anyway).
+  generation timeouts at 7 t/s, since MLX doesn't batch), not the model. Re-run at
+  concurrency 1 deferred to end of run (changes no ranking — disqualified on 7 t/s
+  speed regardless; verified separately that it generates correct code).
 
 ## L2 — Agent harness
 _pending._
