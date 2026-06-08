@@ -129,6 +129,33 @@ async def stream_chat(
     )
 
 
+async def chat_once(
+    client: httpx.AsyncClient, base_url: str, model: str, messages: list[dict],
+    tools: Optional[list] = None, tool_choice: str = "auto", max_tokens: int = 1024,
+    temperature: float = 0.0, seed: int = 7, response_format: Optional[dict] = None,
+) -> dict:
+    """Non-streaming completion — returns the raw OpenAI message (content +
+    tool_calls) plus latency. Used by evals that need the full structured reply."""
+    body = {"model": model, "messages": messages, "max_tokens": max_tokens,
+            "temperature": temperature, "stream": False, "seed": seed}
+    if tools:
+        body["tools"] = tools
+        body["tool_choice"] = tool_choice
+    if response_format:
+        body["response_format"] = response_format
+    import time as _t
+    t0 = _t.perf_counter()
+    try:
+        r = await client.post(f"{base_url}/chat/completions", json=body, timeout=600)
+        dt = _t.perf_counter() - t0
+        if r.status_code != 200:
+            return {"ok": False, "error": f"HTTP {r.status_code}: {r.text[:300]}", "latency_s": dt}
+        msg = r.json()["choices"][0]["message"]
+        return {"ok": True, "message": msg, "latency_s": dt}
+    except Exception as e:  # noqa: BLE001
+        return {"ok": False, "error": f"{type(e).__name__}: {e}", "latency_s": _t.perf_counter() - t0}
+
+
 def _count(tokenizer, messages: list[dict]) -> int:
     try:
         ids = tokenizer.apply_chat_template(messages, add_generation_prompt=True)
