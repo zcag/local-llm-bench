@@ -36,6 +36,6 @@ class LlamaCpp(Engine):
             "-c", str(self.ctx),                  # shared budget (unified) — fits 32k single-stream
             "--parallel", str(self.parallel),     # enough slots to actually batch at c=16
             "--kv-unified",                       # one shared KV cache: full ctx for 1 stream, shared for N
-            "-b", "2048", "-ub", "512",           # batch/ubatch for throughput
+            "-b", "2048", "-ub", "2048",          # ubatch 2048 for Metal prefill throughput (F8)
             "--jinja",            # use the model's chat template (tool-calling)
         ]

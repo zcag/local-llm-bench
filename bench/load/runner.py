@@ -19,7 +19,10 @@ class LevelResult:
     # per-request (over successful samples)
     ttft_p50: float = 0.0
     ttft_p90: float = 0.0
+    ttft_min: float = 0.0
     decode_tps_median: float = 0.0   # single-stream generation rate
+    decode_tps_min: float = 0.0
+    decode_tps_max: float = 0.0
     # aggregate (system-level)
     system_tps: float = 0.0          # total completion tokens / wall window
     wall_s: float = 0.0
@@ -66,11 +69,15 @@ async def run_level(
     ok = [s for s in results if s.ok]
     fail = [s for s in results if not s.ok]
     total_ctok = sum(s.completion_tokens for s in ok)
+    dtps = [s.decode_tps for s in ok if s.decode_tps]
     return LevelResult(
         concurrency=concurrency, n=n, ok=len(ok), fail=len(fail),
         ttft_p50=_pct([s.ttft_s for s in ok], 0.5),
         ttft_p90=_pct([s.ttft_s for s in ok], 0.9),
-        decode_tps_median=statistics.median([s.decode_tps for s in ok]) if ok else 0.0,
+        ttft_min=min((s.ttft_s for s in ok), default=0.0),
+        decode_tps_median=statistics.median(dtps) if dtps else 0.0,
+        decode_tps_min=min(dtps, default=0.0),
+        decode_tps_max=max(dtps, default=0.0),
         system_tps=total_ctok / wall if wall else 0.0,
         wall_s=wall,
         errors=[s.error for s in fail][:5],

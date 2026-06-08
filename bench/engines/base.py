@@ -33,6 +33,13 @@ class Engine(abc.ABC):
     def _command(self) -> list[str]:
         ...
 
+    def config_str(self) -> str:
+        """Exact config used — recorded into every result row for provenance (F18)."""
+        try:
+            return " ".join(self._command())
+        except NotImplementedError:
+            return f"{self.name} model={self.model} port={self.port}"
+
     def _env(self) -> dict | None:
         return None
 

@@ -29,6 +29,11 @@ def register_gguf(name: str, gguf_path: str, port: int) -> None:
 class Ollama(Engine):
     name = "ollama"
 
+    def __init__(self, model: str, port: int, parallel: int = 1, ctx: int = 34816):
+        super().__init__(model, port)
+        self.parallel = parallel   # NUM_PARALLEL: 1 for single-stream, 16 for concurrency phase
+        self.ctx = ctx
+
     @property
     def proc_match(self) -> str:
         return "ollama"
@@ -38,7 +43,8 @@ class Ollama(Engine):
         env["OLLAMA_HOST"] = f"127.0.0.1:{self.port}"
         env["OLLAMA_KEEP_ALIVE"] = "-1"
         env["OLLAMA_FLASH_ATTENTION"] = "1"
-        env["OLLAMA_NUM_PARALLEL"] = "16"   # default 1 serialized the concurrency sweep — unfair
+        env["OLLAMA_NUM_PARALLEL"] = str(self.parallel)
+        env["OLLAMA_CONTEXT_LENGTH"] = str(self.ctx)   # explicit (was fragile via parent env)
         return env
 
     def _command(self) -> list[str]:
