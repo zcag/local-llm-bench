@@ -28,10 +28,7 @@ PROXY_URL = f"http://127.0.0.1:{PROXY_PORT}"
 HARNESS_BASE = f"{PROXY_URL}/v1"
 CCR_PORT = 3456
 CCR_URL = f"http://127.0.0.1:{CCR_PORT}"
-# opencode excluded: won't run headless against a hermetic custom-provider config
-# (initializes then hangs, 0 model requests, no error). The daily `lcld` use relies
-# on opencode's own persisted auth/config, which a clean benchmark deliberately avoids.
-ALL_HARNESSES = [Aider(), Goose(), Crush(), ClaudeCode()]
+ALL_HARNESSES = [Aider(), Goose(), Crush(), ClaudeCode(), OpenCode()]
 LOGDIR = "/tmp/llmbench"
 
 

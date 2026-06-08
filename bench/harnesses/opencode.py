@@ -15,6 +15,8 @@ class OpenCode(Harness):
     bin = "opencode"
 
     def command(self, workdir, instruction, solution_files, base_url, model):
+        # Mirror Cagdas's working lcld config: the model MUST declare tool_call:true
+        # and a limit, else opencode won't use tools (can't edit files) and no-ops.
         cfg = {
             "$schema": "https://opencode.ai/config.json",
             "provider": {
@@ -22,7 +24,8 @@ class OpenCode(Harness):
                     "npm": "@ai-sdk/openai-compatible",
                     "name": "bench",
                     "options": {"baseURL": base_url, "apiKey": "bench"},
-                    "models": {ALIAS: {"name": ALIAS}},
+                    "models": {ALIAS: {"name": ALIAS, "tool_call": True,
+                                       "limit": {"context": 32768, "output": 8192}}},
                 }
             },
         }
