@@ -1,6 +1,7 @@
 # Status
 
-**Phase 1 (scaffold + harness): measurement path validated.** See [PLAN.md](PLAN.md) for full design.
+**Phase 1 done: harness + control plane validated.** See [PLAN.md](PLAN.md) for full design.
+Next: install engines, pull model zoo, build workload/eval layer (L0→L3).
 
 ## Done
 - Python harness (`bench/`), run with `uv` ON tardis (localhost load-gen, no network noise):
@@ -23,10 +24,17 @@
 - Models cached (MLX): Coder-Next-mxfp4, Qwen3-Coder-30B-A3B-4bit-DWQ. Everything else TBD-download.
 - Control: MLX via launchd (KeepAlive=true → `bootout` to stop). `uv` present.
 
+## Done (Phase 1)
+- Engine adapters (`bench/engines/{base,mlx,llamacpp,ollama}.py`) — harness owns engine lifecycle.
+- `quiesce.py` — takes box single-tenant, **always restores** (bootout→sleep→bootstrap; docker path resolved; missing-bin tolerant). Validated: full take-down → harness MLX → restore.
+- Datapoint: 30B-A3B-4bit-DWQ ~185 t/s decode vs Coder-Next-mxfp4 ~70 t/s.
+- tardis disk: 304 GB free, hf cache 55 GB.
+
 ## Next
-1. **Engine adapters + quiesce** — `bench/engines/{mlx,llamacpp,ollama,lmstudio}.py` (start/stop/health/model swap) + `quiesce.py` (bootout launchd units, stop open-webui, assert idle, restore).
-2. **Pin output length** in decode scenarios (~256 forced tokens) for clean decode-rate.
-3. **L0 engine bake-off** — install llama.cpp + LM Studio, pull GGUF Qwen3-Coder-30B-A3B, run the cross-engine grid.
+1. **Install engines**: `brew install llama.cpp`; LM Studio (`lms` CLI); (MLC stretch). Write/test ollama + lmstudio adapters against real models.
+2. **Pin output length** in decode scenarios (~256 forced tokens, ignore-eos where supported) for clean decode-rate.
+3. **L0 engine bake-off** — pull GGUF Qwen3-Coder-30B-A3B, run cross-engine grid (mlx / llama.cpp / ollama×2 / lmstudio) at concurrency {1,2,4,8,16} + 30-min soak.
+4. **Workload/eval layer** — wire Aider polyglot, SWE-bench subset, BFCL, tool-call suite, needle; LLM-judge via Claude API (grader-only).
 
 ## Open decisions
 - Model list for L1 (confirm: Coder-Next, 30B-A3B quant sweep 4/6/8, gpt-oss-20b, GLM-Air, Devstral, Qwen2.5-Coder-32B). Big downloads — confirm before pulling.
