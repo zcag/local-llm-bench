@@ -1,0 +1,46 @@
+{
+  "model_tag": "devstral-2507-8bit",
+  "model": "mlx-community/Devstral-Small-2507-8bit",
+  "eval": "toolcalling",
+  "passed": 1,
+  "total": 6,
+  "score": 0.167,
+  "cases": [
+    {
+      "id": "simple_call",
+      "cat": "simple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "enum_adherence",
+      "cat": "enum",
+      "passed": false,
+      "reason": "name=None args=None"
+    },
+    {
+      "id": "tool_selection",
+      "cat": "select",
+      "passed": false,
+      "reason": "name=None"
+    },
+    {
+      "id": "parallel_calls",
+      "cat": "parallel",
+      "passed": false,
+      "reason": "0 weather calls"
+    },
+    {
+      "id": "array_args",
+      "cat": "nested",
+      "passed": false,
+      "reason": "name=None"
+    },
+    {
+      "id": "no_call_needed",
+      "cat": "restraint",
+      "passed": true,
+      "reason": "0 calls (want 0)"
+    }
+  ]
+}

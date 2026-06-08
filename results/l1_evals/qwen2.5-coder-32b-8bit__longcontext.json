@@ -1,0 +1,100 @@
+{
+  "model_tag": "qwen2.5-coder-32b-8bit",
+  "model": "mlx-community/Qwen2.5-Coder-32B-Instruct-8bit",
+  "eval": "longcontext",
+  "passed": 8,
+  "total": 12,
+  "score": 0.667,
+  "by_length": {
+    "4000": 1.0,
+    "8000": 1.0,
+    "16000": 0.67,
+    "32000": 0.0
+  },
+  "cases": [
+    {
+      "len": 4000,
+      "depth": 0.1,
+      "passed": true,
+      "want": "7000-XQ",
+      "got": ""
+    },
+    {
+      "len": 4000,
+      "depth": 0.5,
+      "passed": true,
+      "want": "7007-XQ",
+      "got": ""
+    },
+    {
+      "len": 4000,
+      "depth": 0.9,
+      "passed": true,
+      "want": "7014-XQ",
+      "got": ""
+    },
+    {
+      "len": 8000,
+      "depth": 0.1,
+      "passed": true,
+      "want": "7100-XQ",
+      "got": ""
+    },
+    {
+      "len": 8000,
+      "depth": 0.5,
+      "passed": true,
+      "want": "7107-XQ",
+      "got": ""
+    },
+    {
+      "len": 8000,
+      "depth": 0.9,
+      "passed": true,
+      "want": "7114-XQ",
+      "got": ""
+    },
+    {
+      "len": 16000,
+      "depth": 0.1,
+      "passed": true,
+      "want": "7200-XQ",
+      "got": ""
+    },
+    {
+      "len": 16000,
+      "depth": 0.5,
+      "passed": true,
+      "want": "7207-XQ",
+      "got": ""
+    },
+    {
+      "len": 16000,
+      "depth": 0.9,
+      "passed": false,
+      "want": "7214-XQ",
+      "got": ""
+    },
+    {
+      "len": 32000,
+      "depth": 0.1,
+      "passed": false,
+      "want": "7300-XQ",
+      "got": ""
+    },
+    {
+      "len": 32000,
+      "depth": 0.5,
+      "passed": false,
+      "want": "7307-XQ",
+      "got": ""
+    },
+    {
+      "len": 32000,
+      "depth": 0.9,
+      "passed": false,
+      "want": "7314-XQ",
+      "got": ""
+    }
+  ]
+}

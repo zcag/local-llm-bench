@@ -1,0 +1,10 @@
+{
+  "model_tag": "gpt-oss-20b",
+  "model": "mlx-community/gpt-oss-20b-MXFP4-Q8",
+  "eval": "mbpp+",
+  "pass@1_base": 0.913,
+  "pass@1_plus": 0.775,
+  "score": 0.775,
+  "n": 378,
+  "raw": ""
+}

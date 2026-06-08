@@ -1,0 +1,10 @@
+{
+  "model_tag": "30b-a3b-6bit",
+  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-6bit",
+  "eval": "mbpp+",
+  "pass@1_base": 0.907,
+  "pass@1_plus": 0.786,
+  "score": 0.786,
+  "n": 378,
+  "raw": ""
+}

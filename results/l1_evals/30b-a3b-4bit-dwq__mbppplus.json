@@ -1,0 +1,10 @@
+{
+  "model_tag": "30b-a3b-4bit-dwq",
+  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit-DWQ",
+  "eval": "mbpp+",
+  "pass@1_base": 0.905,
+  "pass@1_plus": 0.77,
+  "score": 0.77,
+  "n": 378,
+  "raw": ""
+}

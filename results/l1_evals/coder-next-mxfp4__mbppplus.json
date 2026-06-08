@@ -1,0 +1,10 @@
+{
+  "model_tag": "coder-next-mxfp4",
+  "model": "mlx-community/Qwen3-Coder-Next-mxfp4",
+  "eval": "mbpp+",
+  "pass@1_base": 0.913,
+  "pass@1_plus": 0.783,
+  "score": 0.783,
+  "n": 378,
+  "raw": ""
+}

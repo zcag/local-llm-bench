@@ -1,0 +1,10 @@
+{
+  "model_tag": "30b-a3b-8bit",
+  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-8bit",
+  "eval": "humaneval+",
+  "pass@1_base": 0.927,
+  "pass@1_plus": 0.902,
+  "score": 0.902,
+  "n": 164,
+  "raw": ""
+}

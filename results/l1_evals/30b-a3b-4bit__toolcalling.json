@@ -1,0 +1,46 @@
+{
+  "model_tag": "30b-a3b-4bit",
+  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit",
+  "eval": "toolcalling",
+  "passed": 5,
+  "total": 6,
+  "score": 0.833,
+  "cases": [
+    {
+      "id": "simple_call",
+      "cat": "simple",
+      "passed": true,
+      "reason": "city=Istanbul"
+    },
+    {
+      "id": "enum_adherence",
+      "cat": "enum",
+      "passed": true,
+      "reason": "unit=fahrenheit"
+    },
+    {
+      "id": "tool_selection",
+      "cat": "select",
+      "passed": false,
+      "reason": "name=None"
+    },
+    {
+      "id": "parallel_calls",
+      "cat": "parallel",
+      "passed": true,
+      "reason": "2 weather calls"
+    },
+    {
+      "id": "array_args",
+      "cat": "nested",
+      "passed": true,
+      "reason": "items=['apple', 'banana']"
+    },
+    {
+      "id": "no_call_needed",
+      "cat": "restraint",
+      "passed": true,
+      "reason": "0 calls (want 0)"
+    }
+  ]
+}

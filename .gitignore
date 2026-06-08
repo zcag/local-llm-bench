@@ -1,6 +1,7 @@
 .venv/
-results/
 __pycache__/
 *.pyc
 .uv/
 tasks/polyglot/
+results/*.bak
+results/runs.jsonl.pre-*

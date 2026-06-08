@@ -1,0 +1,10 @@
+{
+  "model_tag": "qwen2.5-coder-32b-8bit",
+  "model": "mlx-community/Qwen2.5-Coder-32B-Instruct-8bit",
+  "eval": "humaneval+",
+  "pass@1_base": 0.0,
+  "pass@1_plus": 0.0,
+  "score": 0.0,
+  "n": 164,
+  "raw": ""
+}
