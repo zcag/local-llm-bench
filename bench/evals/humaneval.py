@@ -48,7 +48,11 @@ async def _gen(client, base_url, model, problems, concurrency=4):
     return samples
 
 
-async def run(base_url: str, model: str, limit: int | None = None) -> dict:
+async def run(base_url: str, model: str, limit: int | None = None,
+              concurrency: int = 1, save_dir: str | None = None) -> dict:
+    # concurrency=1: MLX has no continuous batching, so concurrent generation
+    # gives no speedup and only risks per-request queue timeouts (which tanked
+    # the 7 t/s qwen2.5-32b run to 0.0). Serial is strictly better here.
     try:
         from evalplus.data import get_human_eval_plus
     except ImportError:
@@ -59,7 +63,13 @@ async def run(base_url: str, model: str, limit: int | None = None) -> dict:
         problems = dict(list(problems.items())[:limit])
 
     async with httpx.AsyncClient() as client:
-        samples = await _gen(client, base_url, model, problems)
+        samples = await _gen(client, base_url, model, problems, concurrency=concurrency)
+
+    if save_dir:  # persist samples so a re-grade never needs regeneration
+        os.makedirs(save_dir, exist_ok=True)
+        with open(os.path.join(save_dir, "samples.jsonl"), "w") as sf:
+            for tid, sol in samples.items():
+                sf.write(json.dumps({"task_id": tid, "solution": sol}) + "\n")
 
     # write samples, then grade in the native-arm64 Linux container (evalplus's
     # execution sandbox doesn't work on macOS — see grading/Dockerfile). Fresh

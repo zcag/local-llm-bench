@@ -54,8 +54,42 @@ t/s and TTFT stays sub-second through c=4. ollama also batches poorly.
 burst ≈ sustained. The earlier worry (that a 30s speed run would overstate daily
 use) doesn't hold here; the steady-state numbers match the burst numbers.
 
-## L1 — Model × quant
-_pending — zoo downloading._
+## L1 — Model × quant (engine = MLX, single-stream, temp 0 + seed)
+
+| model | decode t/s | prefill@32k | wired GB | HumanEval+ base/plus | tool | longctx |
+|---|---|---|---|---|---|---|
+| coder-next-mxfp4 (80B-A3B) | 67 | 580 | 45–51 | 0.909 / 0.872 | ✓ | ✓ |
+| 30b-a3b-4bit | 89 | 749 | 20–25 | 0.823 / 0.793 | 5/6 | ✓ |
+| **30b-a3b-4bit-DWQ** | **90** | 748 | **20–25** | **0.933 / 0.902** | ✓ | ✓ |
+| 30b-a3b-6bit | 69 | 729 | 28–33 | 0.933 / 0.902 | ✓ | ✓ |
+| 30b-a3b-8bit | 59 | 743 | 35–40 | 0.933 / 0.902 | ✓ | ✓ |
+| gpt-oss-20b | 74 | 684 | 15–17 | 0.890 / 0.878 | ✗* | ✗* |
+| devstral-2507-8bit (dense 24B) | 13 | 239 | 23–31 | 0.823 / 0.793 | ✗* | ✓ |
+| qwen2.5-coder-32b-8bit (dense 32B) | 7 | 154 | 38–51 | re-running† | ✗* | 0.67 |
+
+(tool = toolcalling score, ✓ = 6/6; longctx = needle 4k–32k, ✓ = 12/12)
+
+### Conclusions
+- **Winner for this box: `30b-a3b-4bit-DWQ`.** Fastest decode (90 t/s), leanest
+  memory (20–25 GB), and top-tier quality (HumanEval+ 0.902, tools ✓, 32k ✓) —
+  matching 6/8-bit quality at 4-bit cost. **DWQ is decisively worth it**: vanilla
+  4-bit drops to 0.793 and 5/6 tools; DWQ recovers it for free.
+- **Quant curve (Qwen3-Coder-30B):** quality saturates at 4-bit-DWQ; 6/8-bit add
+  memory + halve speed (90→59 t/s) for **no quality gain**. Don't pay for 8-bit.
+- **The 80B flagship isn't worth it here:** Coder-Next scores *lower* than DWQ-4bit
+  on HumanEval+ (0.872 vs 0.902), is slower (67 vs 90), and uses 2× memory.
+- **MoE (A3B) crushes dense on speed:** A3B models 59–90 t/s; dense devstral-24B
+  13 t/s, qwen2.5-32b **7 t/s** — 5–13× slower. Dense models are non-starters for
+  interactive single-user use on this box regardless of quality.
+- **\*Serving-path caveat (not a model verdict):** gpt-oss (harmony channels) and
+  devstral/qwen2.5 (Mistral/`[TOOL_CALLS]`) emit tool-calls in formats
+  `mlx_lm.server`'s OpenAI endpoint does **not** parse into `tool_calls` — so they
+  score ~1/6 on tools and gpt-oss leaks `<|channel|>analysis<|message|>` as content
+  (tanking its needle test). They *can* code; they just can't tool-call through
+  this serving path. **For agentic use on mlx_lm.server, use the Qwen3-Coder family.**
+- **†qwen2.5 HumanEval+** first run hit 0.0 — a harness artifact (concurrent
+  generation timeouts at 7 t/s, since MLX doesn't batch), not the model. Re-running
+  at concurrency 1. Doesn't change any ranking (disqualified on 7 t/s speed anyway).
 
 ## L2 — Agent harness
 _pending._
