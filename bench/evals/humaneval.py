@@ -19,6 +19,9 @@ from ..load.client import chat_once
 PROMPT = ("Complete the following Python function. Return ONLY the complete "
           "function implementation in a single ```python code block, including "
           "the signature. Do not add explanations or tests.\n\n```python\n{sig}\n```")
+MBPP_PROMPT = ("Write a Python solution for the following task. Return ONLY the "
+               "code in a single ```python code block, with the exact function "
+               "signature implied by the task. No explanations or tests.\n\n{sig}")
 
 _FENCE = re.compile(r"```(?:python)?\s*(.*?)```", re.DOTALL)
 
@@ -33,13 +36,13 @@ def _extract(content: str, entry_point: str) -> str:
     return code.strip()
 
 
-async def _gen(client, base_url, model, problems, concurrency=4):
+async def _gen(client, base_url, model, problems, concurrency=4, template=PROMPT):
     sem = asyncio.Semaphore(concurrency)
     samples = {}
 
     async def one(tid, prob):
         async with sem:
-            msgs = [{"role": "user", "content": PROMPT.format(sig=prob["prompt"].strip())}]
+            msgs = [{"role": "user", "content": template.format(sig=prob["prompt"].strip())}]
             r = await chat_once(client, base_url, model, msgs, max_tokens=1024)
             content = r.get("message", {}).get("content", "") if r["ok"] else ""
             samples[tid] = _extract(content, prob["entry_point"])
@@ -49,21 +52,24 @@ async def _gen(client, base_url, model, problems, concurrency=4):
 
 
 async def run(base_url: str, model: str, limit: int | None = None,
-              concurrency: int = 1, save_dir: str | None = None) -> dict:
+              concurrency: int = 1, save_dir: str | None = None,
+              dataset: str = "humaneval") -> dict:
     # concurrency=1: MLX has no continuous batching, so concurrent generation
     # gives no speedup and only risks per-request queue timeouts (which tanked
     # the 7 t/s qwen2.5-32b run to 0.0). Serial is strictly better here.
+    # dataset: "humaneval" (HumanEval+) or "mbpp" (MBPP+).
     try:
-        from evalplus.data import get_human_eval_plus
+        from evalplus.data import get_human_eval_plus, get_mbpp_plus
     except ImportError:
-        return {"eval": "humaneval+", "error": "evalplus not installed"}
+        return {"eval": f"{dataset}+", "error": "evalplus not installed"}
 
-    problems = get_human_eval_plus()
+    problems = get_mbpp_plus() if dataset == "mbpp" else get_human_eval_plus()
+    template = MBPP_PROMPT if dataset == "mbpp" else PROMPT
     if limit:
         problems = dict(list(problems.items())[:limit])
 
     async with httpx.AsyncClient() as client:
-        samples = await _gen(client, base_url, model, problems, concurrency=concurrency)
+        samples = await _gen(client, base_url, model, problems, concurrency=concurrency, template=template)
 
     if save_dir:  # persist samples so a re-grade never needs regeneration
         os.makedirs(save_dir, exist_ok=True)
@@ -82,13 +88,13 @@ async def run(base_url: str, model: str, limit: int | None = None,
     docker = shutil.which("docker") or "/usr/local/bin/docker"
     proc = subprocess.run(
         [docker, "run", "--rm", "-v", f"{d}:/data", "llmbench-evalplus",
-         "python", "-m", "evalplus.evaluate", "--dataset", "humaneval", "--samples", "/data/samples.jsonl"],
+         "python", "-m", "evalplus.evaluate", "--dataset", dataset, "--samples", "/data/samples.jsonl"],
         capture_output=True, text=True, timeout=1800,
     )
     out = proc.stdout + proc.stderr
     base = _passat1(out, "base tests")
     plus = _passat1(out, "extra tests")
-    return {"eval": "humaneval+", "pass@1_base": base, "pass@1_plus": plus,
+    return {"eval": f"{dataset}+", "pass@1_base": base, "pass@1_plus": plus,
             "score": plus if plus is not None else 0.0, "n": len(samples),
             "raw": out[-500:] if base is None else ""}
 

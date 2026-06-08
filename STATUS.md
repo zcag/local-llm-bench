@@ -36,6 +36,37 @@ Next: install engines, pull model zoo, build workload/eval layer (L0→L3).
 3. **L0 engine bake-off** — pull GGUF Qwen3-Coder-30B-A3B, run cross-engine grid (mlx / llama.cpp / ollama×2 / lmstudio) at concurrency {1,2,4,8,16} + 30-min soak.
 4. **Workload/eval layer** — wire Aider polyglot, SWE-bench subset, BFCL, tool-call suite, needle; LLM-judge via Claude API (grader-only).
 
+## BREADTH-RESTORATION QUEUE (locked contract — see PLAN.md; no contender dropped)
+Execute in order across autonomous wakeups. Mark [x] when done. GPU-bound items are serial.
+
+### Harnesses (L2)
+- [~] aider, goose, crush, claude-code — current L2 run (--tasks 10) in progress
+- [ ] opencode — fixed (tool_call:true); validate then run --only opencode --tasks 10
+- [ ] aider BEST config — auto-test loop + try edit-formats (diff/whole/architect); re-run
+- [ ] cline / continue / roo — investigate headless drivers; add if possible, else PROVE GUI-wall + document
+
+### Engines (L0)
+- [ ] MLC-LLM — install (`pip install mlc-llm` or prebuilt), adapter, run cross-engine model
+- [ ] ollama-MLX backend — investigate (may only run ollama-registry models); add variant if feasible, else document
+- [ ] spec-decode — mlx_lm --draft-model (Qwen3-0.6B) on DWQ-30B; new L0 row (speedup vs base)
+
+### Evals (L1 — add axes across all 8 models)
+- [ ] tool-calling FIX — serve gpt-oss/devstral/qwen2.5 via llama.cpp --jinja (grammar tool-parse); re-score tool axis (engine×model cell)
+- [ ] MBPP+ — evalplus --dataset mbpp, container-graded, all 8 models
+- [ ] BFCL — Berkeley Function-Calling Leaderboard subset, all 8 models
+- [ ] IFEval — verifiable instruction-following, all 8 models
+- [ ] qwen2.5-coder-32b HumanEval+ rerun (concurrency 1) — pending from earlier
+
+### Suites
+- [ ] SWE-bench — attempt (verified subset); PROVE if x86-on-ARM Docker is a real wall
+
+### L3
+- [ ] embed/RAG — qwen3-embedding:0.6b throughput + recall@k
+- [ ] real repo tasks — 2-3 small tasks from ~/proj via the L2-winner harness
+
+### Synthesis
+- [ ] full exec-summary + recommended stack + surprises; commit; robot ping
+
 ## Open decisions
 - Model list for L1 (confirm: Coder-Next, 30B-A3B quant sweep 4/6/8, gpt-oss-20b, GLM-Air, Devstral, Qwen2.5-Coder-32B). Big downloads — confirm before pulling.
 - SWE-bench slice: default fixed ~30-task verified subset.
