@@ -10,10 +10,12 @@ from .base import Engine
 class LlamaCpp(Engine):
     name = "llama.cpp"
 
-    def __init__(self, model: str, port: int, ctx: int = 16384, alias: str | None = None):
+    def __init__(self, model: str, port: int, ctx: int = 16384, alias: str | None = None,
+                 parallel: int = 16):
         super().__init__(model, port)   # model = path to .gguf
         self.ctx = ctx
         self.alias = alias or "llamacpp-model"
+        self.parallel = parallel  # slots for the concurrency sweep (default auto was 4 — unfair at c8/16)
 
     @property
     def proc_match(self) -> str:
@@ -31,6 +33,9 @@ class LlamaCpp(Engine):
             "--port", str(self.port),
             "-ngl", "999",
             "--flash-attn", "on",
-            "-c", str(self.ctx),
+            "-c", str(self.ctx),                  # shared budget (unified) — fits 32k single-stream
+            "--parallel", str(self.parallel),     # enough slots to actually batch at c=16
+            "--kv-unified",                       # one shared KV cache: full ctx for 1 stream, shared for N
+            "-b", "2048", "-ub", "512",           # batch/ubatch for throughput
             "--jinja",            # use the model's chat template (tool-calling)
         ]

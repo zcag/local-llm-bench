@@ -30,10 +30,17 @@ System throughput (tok/s) and TTFT p50 as concurrent requests rise:
 | mlx_lm.server | 87 | 87 | 86 (flat) | 4.5s | **22.5s** |
 | ollama | 61 | 63 | 63 (flat) | 6.1s | 30.4s |
 
-**Key finding: `mlx_lm.server` does no continuous batching.** Concurrent requests
-serialize — throughput stays flat at the single-stream rate and TTFT balloons
-(22.5s at c=16). llama.cpp / LM Studio batch properly: throughput climbs to ~98
-t/s and TTFT stays sub-second through c=4. ollama also batches poorly.
+> [!CAUTION]
+> **RETRACTED — this concurrency data is invalid (config error, under re-run).**
+> The first pass concluded "mlx_lm.server doesn't batch" — but that was because I
+> ran every engine WITHOUT enabling concurrency: mlx_lm with default
+> `--decode-concurrency 1`, ollama with `OLLAMA_NUM_PARALLEL=1`, llama.cpp with
+> auto `--parallel 4`. So the concurrency sweep measured under-configured engines,
+> not their real batching. mlx_lm.server **does** continuous-batch
+> (`--decode-concurrency`/`--prompt-concurrency`); ollama needs `NUM_PARALLEL`;
+> llama.cpp needs `--parallel ≥ c`. **Re-running the whole concurrency sweep with
+> each engine's batching maxed.** The single-stream numbers below are unaffected
+> (1 request — config didn't matter there).
 
 ### Verdict
 - **This box's job is single-user (one person, one agent).** → **MLX is the right

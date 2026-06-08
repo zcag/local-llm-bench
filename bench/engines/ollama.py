@@ -38,6 +38,7 @@ class Ollama(Engine):
         env["OLLAMA_HOST"] = f"127.0.0.1:{self.port}"
         env["OLLAMA_KEEP_ALIVE"] = "-1"
         env["OLLAMA_FLASH_ATTENTION"] = "1"
+        env["OLLAMA_NUM_PARALLEL"] = "16"   # default 1 serialized the concurrency sweep — unfair
         return env
 
     def _command(self) -> list[str]:

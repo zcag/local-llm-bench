@@ -46,6 +46,8 @@ Execute in order across autonomous wakeups. Mark [x] when done. GPU-bound items 
 - [ ] cline / continue / roo — investigate headless drivers; add if possible, else PROVE GUI-wall + document
 
 ### Engines (L0)
+- [ ] **RE-RUN L0 concurrency sweep — CONFIG ERROR (invalidated old data):** all engines ran with concurrency=1/auto-4. Re-run with batching maxed: mlx `--decode-concurrency 16 --prompt-concurrency 16`, ollama `NUM_PARALLEL=16`, llama.cpp `--parallel 16 --kv-unified`, lmstudio (find slots flag). Single-stream L0 still valid. (adapters already fixed)
+- [ ] verify-config-with-evidence for EVERY engine before counting its run (CONFIG.md ledger): confirm full GPU offload + the intended batching/FA actually took effect (parse logs)
 - [ ] MLC-LLM — install (`pip install mlc-llm` or prebuilt), adapter, run cross-engine model
 - [ ] ollama-MLX backend — investigate (may only run ollama-registry models); add variant if feasible, else document
 - [ ] spec-decode — mlx_lm --draft-model (Qwen3-0.6B) on DWQ-30B; new L0 row (speedup vs base)
