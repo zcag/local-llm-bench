@@ -5,51 +5,50 @@ Running log of results as each layer completes. Numbers from `results/runs.jsonl
 
 ## L0 — Engine bake-off (Qwen3-Coder-30B-A3B, Q4, identical model across engines)
 
-Apples-to-apples note: MLX uses 4bit-DWQ (~16 GB), the GGUF engines use the
-*same* Q4_K_M file (18.6 GB) loaded by llama.cpp / ollama / LM Studio. DWQ vs
-Q4_K_M differ in quant method (documented; bits-per-weight comparable).
+**v2 (post-audit, verified).** Cross-engine quant is now MATCHED-bpw: MLX-4bit
+(vanilla, ~4.5bpw) vs GGUF-Q4_K_M (~4.5bpw) — same budget, no DWQ advantage.
+MLX-4bit-DWQ reported as a bonus row (MLX's best). Two phases, each at the
+engine's best config for that regime (single-stream parallel=1; concurrency
+parallel=16). TTFT cache-busted (unique prefix/request) so it's honest. Configs +
+GPU-offload evidence recorded per row.
 
-### Single-stream (1 user) — MLX wins
-| engine | decode t/s | prefill t/s (4k) | TTFT (short) | wired GB |
-|---|---|---|---|---|
-| **mlx_lm.server** | **90.3** | **817** | 0.07s | 19.9 |
-| llama.cpp | 70.8 | 693 | 0.03s | 25.0 |
-| ollama | 64.7 | 726 | 0.06s | 24.5 |
-| LM Studio | 62.4 | 678 | 0.12s | 24.7 |
+### Single-stream (1 user, matched-bpw) — MLX wins, and NOT because of DWQ
+| engine | quant | decode t/s | prefill@4k | prefill@32k | TTFT@32k | wired GB |
+|---|---|---|---|---|---|---|
+| **mlx_lm** | 4bit | **89.3** | 848 | 757 | 25.0s | **19.9** |
+| mlx_lm | 4bit-DWQ | 90.3 | 843 | 733 | 25.2s | 19.9 |
+| llama.cpp | Q4_K_M | 70.7 | 789 | 568 | 32.9s | 25.8 |
+| ollama | Q4_K_M | 65.0 | 718 | 354 | 52.0s | 24.5 |
+| LM Studio | Q4_K_M | 57.3 | 708 | 534 | 34.6s | 24.8 |
 
-MLX is ~28% faster single-stream decode than the next best, best prefill, and
-leanest memory at short context (it grows with context: 25 GB at 32k prompt).
+MLX ~26% faster decode AND ~6 GB leaner than llama.cpp **at the same bit-budget**
+(the earlier worry that DWQ caused the win is disproven — vanilla 4bit ties DWQ).
+TTFT now physically consistent (≈ prompt_tokens / prefill_tps).
 
-### Under concurrency — the inversion
-System throughput (tok/s) and TTFT p50 as concurrent requests rise:
+### Concurrency (parallel=16, batching enabled) — the corrected picture
+System throughput (tok/s) as concurrent requests rise:
 
-| engine | c=1 | c=4 | c=16 | TTFT@c=4 | TTFT@c=16 |
+| engine | c=1 | c=2 | c=4 | c=8 | c=16 |
 |---|---|---|---|---|---|
-| **llama.cpp** | 68 | **97** | **98** | 0.24s | 15.9s |
-| LM Studio | 57 | 96 | 97 | 0.50s | 16.3s |
-| mlx_lm.server | 87 | 87 | 86 (flat) | 4.5s | **22.5s** |
-| ollama | 61 | 63 | 63 (flat) | 6.1s | 30.4s |
+| **llama.cpp** | 63 | 86 | 98 | 105 | **134** |
+| ollama | 37 | 64 | 80 | 89 | 101 |
+| LM Studio | 63 | 87 | 96 | 96 | 96 |
+| mlx_lm | 78 | 82 | 82 | 78 | **76 (flat)** |
 
-> [!CAUTION]
-> **RETRACTED — this concurrency data is invalid (config error, under re-run).**
-> The first pass concluded "mlx_lm.server doesn't batch" — but that was because I
-> ran every engine WITHOUT enabling concurrency: mlx_lm with default
-> `--decode-concurrency 1`, ollama with `OLLAMA_NUM_PARALLEL=1`, llama.cpp with
-> auto `--parallel 4`. So the concurrency sweep measured under-configured engines,
-> not their real batching. mlx_lm.server **does** continuous-batch
-> (`--decode-concurrency`/`--prompt-concurrency`); ollama needs `NUM_PARALLEL`;
-> llama.cpp needs `--parallel ≥ c`. **Re-running the whole concurrency sweep with
-> each engine's batching maxed.** The single-stream numbers below are unaffected
-> (1 request — config didn't matter there).
+**Verified finding (corrects BOTH earlier wrong claims):** MLX *does* batch —
+its log shows `Prompt Cache: 10 sequences` concurrently, so it is NOT serializing
+(my original "MLX can't batch" was wrong, a config artifact). But MLX's batched
+decode gives **no aggregate-throughput gain** (flat ~80 t/s 1→16), while GGUF
+engines' batching scales (llama.cpp 63→134). So the accurate statement is:
+*MLX batches but batching doesn't raise aggregate throughput on this box;
+llama.cpp's does.*
 
 ### Verdict
-- **This box's job is single-user (one person, one agent).** → **MLX is the right
-  engine**: fastest decode + prefill, lowest single-stream latency. Confirms the
-  current production choice, and grounds L1 on MLX.
-- **If this were a multi-tenant server**, llama.cpp (or LM Studio, same llama.cpp
-  core, ~+1s wrapper latency) would win on aggregate throughput.
-- LM Studio ≈ llama.cpp on throughput (it *is* llama.cpp underneath) but adds a
-  small serving overhead and a higher cold TTFT.
+- **Single-user (this box's job): MLX wins** — fastest decode+prefill, leanest
+  memory, at matched bit-budget. The single-stream advantage is real.
+- **Multi-user aggregate throughput: llama.cpp wins** (134 vs MLX's flat 80 at
+  c=16) — because GGUF batching scales and MLX's doesn't, NOT because MLX serializes.
+- LM Studio ≈ llama.cpp single-stream-wise but plateaus earlier under load (96 vs 134).
 
 ### Soak / thermal (8-min sustained decode)
 | engine | first-min t/s | last-min t/s | throttle |

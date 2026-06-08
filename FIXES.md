@@ -1,6 +1,13 @@
 # Fix tracker — issues found by adversarial audit (2 independent auditors + data confirmation)
 
 Status: CONFIRMED (verified in data/code) · FLAGGED (plausible, needs check) · FIXED · WONTFIX(documented)
+
+## DONE + VERIFIED (L0 redo, evidence in runs.jsonl)
+- F1 (TTFT cache-bust) ✓ — TTFT now ≈ prompt/prefill_tps in data.
+- F3 (MLX concurrency wired) ✓ — log shows `Prompt Cache: 10 sequences`; corrected finding: MLX batches but aggregate throughput stays flat (~80); llama.cpp scales 63→134.
+- F4 (matched-bpw mlx-4bit vs Q4_K_M) ✓ — MLX single-stream win survives (89/19.9 vs 71/25.8); not DWQ.
+- F8 (-ub 2048), F12 (spread), F15 (ollama ctx), F18 (config per row), F19 (cold-first/soak-last) ✓.
+- Open: F2, F5, F6, F7, F10, F13, F14, F16, F17 + breadth queue.
 Nothing is a trusted result until its issue here is resolved AND verified with evidence (CONFIG.md).
 
 ## CRITICAL — invalidate published findings, must fix + re-run
