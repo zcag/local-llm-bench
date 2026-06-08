@@ -23,25 +23,32 @@ def _config(ex_dir: str) -> dict:
 
 
 def prepare(task_id: str, workdir: str) -> dict:
-    """Copy stub solution file(s) + test file(s) + instructions into workdir.
-    Returns {instruction, solution_files, test_files}."""
+    """Copy ONLY the stub solution file(s) + instructions into workdir — the test
+    file is deliberately withheld so no harness can read or run the hidden tests
+    it's graded on (keeps agentic harnesses honest vs one-shot ones). Returns
+    {instruction, solution_files, test_files} (test_files copied in at grade time)."""
     ex = os.path.join(POLY, task_id)
     cfg = _config(ex)
     sol = cfg["files"]["solution"]
     tst = cfg["files"]["test"]
     os.makedirs(workdir, exist_ok=True)
-    for rel in sol + tst:
+    for rel in sol:
         src = os.path.join(ex, rel)
         dst = os.path.join(workdir, rel)
         os.makedirs(os.path.dirname(dst) or workdir, exist_ok=True)
         shutil.copy(src, dst)
     with open(os.path.join(ex, ".docs", "instructions.md")) as f:
         instruction = f.read()
-    return {"instruction": instruction, "solution_files": sol, "test_files": tst}
+    return {"instruction": instruction, "solution_files": sol, "test_files": tst, "task_id": task_id}
 
 
-def grade(workdir: str, test_files: list[str], timeout: int = 120) -> dict:
-    """Run the exercise's pytest tests in workdir. Pass = exit 0."""
+def grade(workdir: str, test_files: list[str], task_id: str, timeout: int = 120) -> dict:
+    """Copy the withheld test file(s) in, then run pytest. Pass = exit 0."""
+    ex = os.path.join(POLY, task_id)
+    for rel in test_files:
+        dst = os.path.join(workdir, rel)
+        os.makedirs(os.path.dirname(dst) or workdir, exist_ok=True)
+        shutil.copy(os.path.join(ex, rel), dst)
     try:
         proc = subprocess.run(
             [sys.executable, "-m", "pytest", "-q", "--no-header", *test_files],

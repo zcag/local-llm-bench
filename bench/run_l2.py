@@ -97,7 +97,7 @@ def run_one(harness, task_id, model):
     res = harness.run(workdir, meta["instruction"], meta["solution_files"], harness_base(harness),
                       model, timeout=900)   # agentic harnesses (claude-code/crush) need headroom
     stats = proxy_stats()
-    graded = l2_tasks.grade(workdir, meta["test_files"])
+    graded = l2_tasks.grade(workdir, meta["test_files"], task_id)
     row = {
         "layer": "L2", "harness": harness.name, "task": task_id, "model": model,
         "passed": graded["passed"], "harness_ok": res.get("ok"),
