@@ -26,6 +26,7 @@ class Crush(Harness):
         }
         with open(os.path.join(workdir, "crush.json"), "w") as f:
             json.dump(cfg, f)
-        argv = ["crush", "run", "-y",
-                instruction + f"\n\nImplement the solution in {', '.join(solution_files)}."]
-        return argv, {"CRUSH_DISABLE_AUTOUPDATE": "1"}
+        argv = ["crush", "run", "--quiet",
+                instruction + f"\n\nImplement the solution in {', '.join(solution_files)} "
+                "in the current directory. Use your tools to edit the file."]
+        return argv, {"CRUSH_DISABLE_AUTOUPDATE": "1", "CRUSH_YOLO": "1"}
