@@ -13,9 +13,7 @@ class Goose(Harness):
         # base_url ends with /v1; goose's openai provider appends /v1 itself, so
         # hand it the host root.
         host = base_url[:-3] if base_url.endswith("/v1") else base_url
-        argv = ["goose", "run", "--no-session", "-t",
-                instruction + f"\n\nEdit the file(s) {', '.join(solution_files)} in the current "
-                "directory to implement this. Do not create new files."]
+        argv = ["goose", "run", "--no-session", "-t", instruction]  # identical shared prompt
         env = {
             "GOOSE_PROVIDER": "openai",
             "GOOSE_MODEL": "local",

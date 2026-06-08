@@ -14,10 +14,10 @@ class Aider(Harness):
         argv = [
             "aider",
             "--model", f"openai/{model}",
+            "--edit-format", "whole",   # most robust for weak local models (diff often fails to apply)
             "--no-auto-commits", "--no-gitignore", "--yes",
-            "--no-show-model-warnings", "--no-check-update", "--map-tokens", "0",
-            "--no-stream",
-            "--message", instruction,
+            "--no-show-model-warnings", "--no-check-update", "--no-stream",
+            "--message", instruction,   # identical shared prompt (no per-harness scaffolding)
             *solution_files,
         ]
         env = {

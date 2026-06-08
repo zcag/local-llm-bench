@@ -15,9 +15,7 @@ class ClaudeCode(Harness):
 
     def command(self, workdir, instruction, solution_files, base_url, model):
         argv = [
-            "claude", "-p",
-            instruction + f"\n\nEdit {', '.join(solution_files)} in the current directory "
-            "to implement this. Use your file editing tools; do not just print the answer.",
+            "claude", "-p", instruction,   # identical shared prompt
             "--dangerously-skip-permissions",
         ]
         env = {

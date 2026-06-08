@@ -20,13 +20,11 @@ class Crush(Harness):
                     "base_url": base_url,
                     "api_key": "bench",
                     "models": [{"id": "local", "name": "local",
-                                "context_window": 32768, "default_max_tokens": 4096}],
+                                "context_window": 32768, "default_max_tokens": 8192}],
                 }
             },
         }
         with open(os.path.join(workdir, "crush.json"), "w") as f:
             json.dump(cfg, f)
-        argv = ["crush", "run", "--quiet",
-                instruction + f"\n\nImplement the solution in {', '.join(solution_files)} "
-                "in the current directory. Use your tools to edit the file."]
+        argv = ["crush", "run", "--quiet", instruction]  # identical shared prompt
         return argv, {"CRUSH_DISABLE_AUTOUPDATE": "1", "CRUSH_YOLO": "1"}

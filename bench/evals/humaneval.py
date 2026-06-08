@@ -28,7 +28,10 @@ _FENCE = re.compile(r"```(?:python)?\s*(.*?)```", re.DOTALL)
 
 def _extract(content: str, entry_point: str) -> str:
     blocks = _FENCE.findall(content or "")
-    code = blocks[-1] if blocks else (content or "")
+    # prefer the fence that actually defines the target function (F13) — not blindly
+    # the last fence, which may be an explanatory snippet appended after the solution.
+    withfn = [b for b in blocks if f"def {entry_point}" in b]
+    code = withfn[-1] if withfn else (blocks[-1] if blocks else (content or ""))
     # keep from first import/def so stray prose before code is dropped
     m = re.search(r"^(from |import |def |class |@)", code, re.MULTILINE)
     if m:

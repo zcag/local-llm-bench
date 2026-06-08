@@ -87,11 +87,18 @@ def proxy_stats() -> dict:
     return httpx.get(f"{PROXY_URL}/__bench/stats", timeout=10).json()
 
 
+# IDENTICAL instruction text for every harness (F7) — task spec + a fixed, neutral
+# directive. No per-harness scaffolding (that biased token counts + help level).
+SHARED_SUFFIX = ("\n\n---\nImplement the solution by editing {files} in the current "
+                 "working directory. Edit the file(s) directly; do not create new files.")
+
+
 def run_one(harness, task_id, model):
     workdir = tempfile.mkdtemp(prefix=f"l2-{harness.name}-{task_id}-")
     meta = l2_tasks.prepare(task_id, workdir)
+    prompt = meta["instruction"] + SHARED_SUFFIX.format(files=", ".join(meta["solution_files"]))
     proxy_reset()
-    res = harness.run(workdir, meta["instruction"], meta["solution_files"], harness_base(harness),
+    res = harness.run(workdir, prompt, meta["solution_files"], harness_base(harness),
                       model, timeout=900)   # agentic harnesses (claude-code/crush) need headroom
     stats = proxy_stats()
     graded = l2_tasks.grade(workdir, meta["test_files"], task_id)
