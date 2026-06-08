@@ -5,7 +5,25 @@ stays resident (no eviction mid-benchmark). Model must already be pulled.
 """
 from __future__ import annotations
 import os
+import subprocess
+import tempfile
 from .base import Engine
+
+
+def register_gguf(name: str, gguf_path: str, port: int) -> None:
+    """Register a local .gguf as an ollama model `name` (idempotent). Requires a
+    running `ollama serve` on `port`. Ollama copies the blob into its store."""
+    env = os.environ.copy()
+    env["OLLAMA_HOST"] = f"127.0.0.1:{port}"
+    existing = subprocess.run(["ollama", "list"], env=env, capture_output=True, text=True).stdout
+    if name in existing:
+        return
+    with tempfile.NamedTemporaryFile("w", suffix=".Modelfile", delete=False) as f:
+        f.write(f"FROM {gguf_path}\n")
+        mf = f.name
+    subprocess.run(["ollama", "create", name, "-f", mf], env=env,
+                   capture_output=True, text=True, check=True)
+    os.unlink(mf)
 
 
 class Ollama(Engine):

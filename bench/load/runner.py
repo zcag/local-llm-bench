@@ -72,3 +72,36 @@ async def warmup(base_url: str, model: str, n: int = 2):
     async with httpx.AsyncClient() as client:
         for _ in range(n):
             await stream_chat(client, base_url, model, msgs, max_tokens=8)
+
+
+async def soak(base_url: str, model: str, messages: list[dict], duration_s: float,
+               max_tokens: int = 256, tokenizer=None, extra=None) -> dict:
+    """Back-to-back single-stream decode for duration_s; report decode tok/s per
+    minute-window to expose thermal throttling (sustained vs burst)."""
+    import time as _t
+    windows: list[float] = []        # decode_tps per request
+    stamps: list[float] = []         # request end time (rel)
+    t0 = _t.perf_counter()
+    async with httpx.AsyncClient() as client:
+        while _t.perf_counter() - t0 < duration_s:
+            s = await stream_chat(client, base_url, model, messages,
+                                  max_tokens=max_tokens, tokenizer=tokenizer, extra=extra)
+            if s.ok and s.decode_tps:
+                windows.append(s.decode_tps)
+                stamps.append(_t.perf_counter() - t0)
+    if not windows:
+        return {"ok": False, "n": 0}
+    # bucket into 60s windows
+    buckets: dict[int, list[float]] = {}
+    for tps, ts in zip(windows, stamps):
+        buckets.setdefault(int(ts // 60), []).append(tps)
+    per_min = {m: round(statistics.mean(v), 1) for m, v in sorted(buckets.items())}
+    first = per_min[min(per_min)]
+    last = per_min[max(per_min)]
+    return {
+        "ok": True, "n": len(windows), "duration_s": round(_t.perf_counter() - t0, 1),
+        "decode_tps_first_min": first, "decode_tps_last_min": last,
+        "throttle_pct": round((first - last) / first * 100, 1) if first else 0.0,
+        "per_min": per_min,
+        "decode_tps_median": round(statistics.median(windows), 1),
+    }
