@@ -84,16 +84,7 @@ async def single_stream(engine_name, quant, eng, soak_s):
     ev = _verify(engine_name)
     print(f"  config: {eng.config_str()[:90]}  evidence: {ev or '(speed-anchored)'}")
 
-    # cold soak FIRST (chip not yet warmed by the sweep) — F19
-    if soak_s > 0:
-        sk = await soak(base, model, scenarios.decode_messages(), duration_s=soak_s,
-                        max_tokens=256, extra=scenarios.IGNORE_EOS)
-        write({"layer": "L0", "phase": "single", "engine": engine_name, "quant": quant,
-               "model": "qwen3-coder-30b", "scenario": "soak", "kind": "thermal",
-               "config": eng.config_str(), **sk})
-        print(f"  soak: first={sk.get('decode_tps_first_min')} last={sk.get('decode_tps_last_min')} "
-              f"throttle={sk.get('throttle_pct')}%")
-
+    # perf scenarios FIRST on a cold chip (the numbers that matter), soak after.
     for label, msgs, mx, kind in scenarios.perf_scenarios():
         with Sampler(proc_match=eng.proc_match) as s:
             lvl = await run_level(base, model, msgs, concurrency=1, n=3, max_tokens=mx,
@@ -113,6 +104,16 @@ async def single_stream(engine_name, quant, eng, soak_s):
         print(f"  {label:11s} ok={lvl.ok}/{lvl.fail} ttft={lvl.ttft_p50:.2f}s(min {lvl.ttft_min:.2f}) "
               f"decode={lvl.decode_tps_median:.1f} prefill={ex.get('prefill_tps',0):.0f} "
               f"wired={s.stats.wired_peak_gb:.1f}G {lvl.errors if lvl.errors else ''}")
+
+    # soak last (confirmatory thermal; chip warm but throttle already ~0%)
+    if soak_s > 0:
+        sk = await soak(base, model, scenarios.decode_messages(), duration_s=soak_s,
+                        max_tokens=256, extra=scenarios.IGNORE_EOS)
+        write({"layer": "L0", "phase": "single", "engine": engine_name, "quant": quant,
+               "model": "qwen3-coder-30b", "scenario": "soak", "kind": "thermal",
+               "config": eng.config_str(), **sk})
+        print(f"  soak: first={sk.get('decode_tps_first_min')} last={sk.get('decode_tps_last_min')} "
+              f"throttle={sk.get('throttle_pct')}%")
     eng.stop(); time.sleep(5)
 
 
