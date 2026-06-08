@@ -19,7 +19,10 @@ DEPTHS = [0.1, 0.5, 0.9]
 
 
 def _haystack(approx_tokens: int, depth: float, code: str) -> str:
-    reps = max(1, int(approx_tokens / 18))   # ~18 tokens/sentence
+    # filler sentence measures ~10.5 tokens (was over-estimated at 18, making the
+    # "32k" haystack only ~18.7k real tokens — F14). /10 slightly overshoots so the
+    # context is AT LEAST the labeled length.
+    reps = max(1, int(approx_tokens / 10))
     sents = [_FILLER_SENT] * reps
     pos = int(len(sents) * depth)
     sents.insert(pos, NEEDLE.format(code=code))

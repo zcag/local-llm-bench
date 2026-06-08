@@ -17,7 +17,7 @@ from .results import write
 from .load.runner import run_level, warmup
 from .engines.mlx import MLX
 from .zoo import ZOO
-from .evals import toolcalling, longcontext, humaneval
+from .evals import toolcalling, longcontext, humaneval, bfcl, ifeval
 
 
 async def perf(base, model, tag):
@@ -43,6 +43,8 @@ async def quality(base, model, tag, he_limit):
     os.makedirs(DETAIL_DIR, exist_ok=True)
     for name, coro in [
         ("toolcalling", toolcalling.run(base, model)),
+        ("bfcl_style", bfcl.run(base, model)),
+        ("ifeval_style", ifeval.run(base, model)),
         ("longcontext", longcontext.run(base, model)),
         # save_dir: persist generations so quant-independence (F2) is auditable
         ("humaneval+", humaneval.run(base, model, limit=he_limit,

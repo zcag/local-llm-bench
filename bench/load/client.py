@@ -87,11 +87,16 @@ async def stream_chat(
                     continue
                 delta = choices[0].get("delta", {})
                 piece = delta.get("content")
-                if piece:
+                # reasoning tokens are generated tokens too (counted in usage) — anchor
+                # the decode window to the FIRST token of any kind so reasoning models
+                # aren't measured over an artificially short window (F10).
+                reasoning = delta.get("reasoning_content") or delta.get("reasoning")
+                if piece or reasoning:
                     now = time.perf_counter()
                     if t_first is None:
                         t_first = now
                     t_last = now
+                if piece:
                     chunks += 1
                     parts.append(piece)
                 if choices[0].get("finish_reason"):
