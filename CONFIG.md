@@ -15,7 +15,7 @@ Legend: status = todo | applied | **verified** | wall(proven)
 | ollama-GGUF | full offload, FA on, num_ctx | ollama env | OLLAMA_FLASH_ATTENTION=1, CTX=34816, KEEP_ALIVE=-1 | log: GPULayers:49(0..48), FA Enabled | **verified** |
 | ollama-MLX | (investigate: may only run registry models) | memory note | — | — | todo |
 | LM Studio | GPU max, FA, context | lms load flags | --gpu max --context-length 34816 | needs verify (offload + FA in lms log) | todo |
-| MLC-LLM | Metal, full offload | mlc docs | — | — | todo |
+| MLC-LLM | Metal, full offload | mlc docs | nightly CPU+ai wheels installed | **`import tvm` crashes: `libc++abi: terminating due to uncaught exception of type tvm::ffi::Error`** — runtime won't init on this macOS/arm64 (nightlies also mismatched: mlc-llm dev162 vs mlc-ai dev1070). Even if fixed, MLC needs per-model compilation + Qwen3-Next-MoE arch unsupported. | **wall (proven)** |
 | spec-decode | mlx --draft-model on DWQ-30B | mlx_lm docs / memory | — | — | todo |
 
 ## Models (L1)

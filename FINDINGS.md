@@ -3,6 +3,14 @@
 Running log of results as each layer completes. Numbers from `results/runs.jsonl`
 (reproduce: `uv run python -m bench.report`). Box: M4 Pro, 64 GB, wired 56 GB.
 
+## Contenders that hit real walls (attempted, documented — not silently dropped)
+- **MLC-LLM (engine):** `import tvm` crashes on this macOS/arm64 box
+  (`tvm::ffi::Error`); the nightly wheels are version-mismatched and even past that,
+  MLC needs per-model compilation and doesn't support the Qwen3-Next-MoE architecture.
+  Proven wall — see [CONFIG.md](CONFIG.md).
+- _(others appended here as encountered: e.g. SWE-bench x86-Docker-on-ARM, GUI-only
+  harnesses if they can't run headless.)_
+
 ## L0 — Engine bake-off (Qwen3-Coder-30B-A3B, Q4, identical model across engines)
 
 **v2 (post-audit, verified).** Cross-engine quant is now MATCHED-bpw: MLX-4bit
