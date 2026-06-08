@@ -44,7 +44,11 @@ async def quality(base, model, tag, he_limit):
     for name, coro in [
         ("toolcalling", toolcalling.run(base, model)),
         ("longcontext", longcontext.run(base, model)),
-        ("humaneval+", humaneval.run(base, model, limit=he_limit)),
+        # save_dir: persist generations so quant-independence (F2) is auditable
+        ("humaneval+", humaneval.run(base, model, limit=he_limit,
+                                     save_dir=os.path.join(DETAIL_DIR, f"{tag}__he_samples"))),
+        ("mbpp+", humaneval.run(base, model, limit=he_limit, dataset="mbpp",
+                                save_dir=os.path.join(DETAIL_DIR, f"{tag}__mbpp_samples"))),
     ]:
         try:
             res = await coro

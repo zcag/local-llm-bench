@@ -36,20 +36,31 @@ def _pct(xs: list[float], p: float) -> float:
     return xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
 
 
+def _uniqueify(messages: list[dict], i: int) -> list[dict]:
+    """Prepend a unique marker to the FIRST message so the KV prefix cache can't
+    hit across requests — otherwise repeated/concurrent identical prompts return a
+    cached ~0s TTFT and inflated throughput (the F1 bug). Negligible token cost."""
+    msgs = [dict(m) for m in messages]
+    msgs[0] = {**msgs[0], "content": f"[req-{i}-{i*7919 % 100000}] " + msgs[0]["content"]}
+    return msgs
+
+
 async def run_level(
     base_url: str, model: str, messages: list[dict], concurrency: int,
     n: int, max_tokens: int, tokenizer=None, extra: Optional[dict] = None,
+    bust_cache: bool = True,
 ) -> LevelResult:
     sem = asyncio.Semaphore(concurrency)
     results: list[Sample] = []
 
     async with httpx.AsyncClient() as client:
-        async def one():
+        async def one(i):
             async with sem:
-                return await stream_chat(client, base_url, model, messages,
+                msgs = _uniqueify(messages, i) if bust_cache else messages
+                return await stream_chat(client, base_url, model, msgs,
                                          max_tokens=max_tokens, tokenizer=tokenizer, extra=extra)
         t0 = time.perf_counter()
-        results = await asyncio.gather(*[one() for _ in range(n)])
+        results = await asyncio.gather(*[one(i) for i in range(n)])
         wall = time.perf_counter() - t0
 
     ok = [s for s in results if s.ok]

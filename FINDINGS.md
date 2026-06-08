@@ -76,7 +76,17 @@ use) doesn't hold here; the steady-state numbers match the burst numbers.
 
 (tool = toolcalling score, ✓ = 6/6; longctx = needle 4k–32k, ✓ = 12/12)
 
-### Conclusions
+> [!CAUTION]
+> **L1 coding scores UNDER RE-VERIFICATION (audit F2).** Different architectures
+> tied to 3 decimals (30b-a3b-4bit == devstral both 0.823/0.793; 6/8/DWQ-4bit all
+> 0.933/0.902). Same-model quant ties may be real saturation, but the cross-model
+> tie is a red flag and the original runs didn't save samples to prove independence.
+> Re-running all 8 with saved generations before trusting the quant conclusions
+> below. Memory + decode-throughput numbers are audited-sound; coding pass@1 is not
+> yet. The gpt-oss/devstral/qwen2.5 tool+longctx scores are serving-path artifacts
+> (F5), not capability — being re-served via an engine that parses their formats.
+
+### Conclusions (PROVISIONAL — pending F2 re-verification)
 - **Winner for this box: `30b-a3b-4bit-DWQ`.** Fastest decode (90 t/s), leanest
   memory (20–25 GB), and top-tier quality (HumanEval+ 0.902, tools ✓, 32k ✓) —
   matching 6/8-bit quality at 4-bit cost. **DWQ is decisively worth it**: vanilla
