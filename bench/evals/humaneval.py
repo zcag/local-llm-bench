@@ -10,6 +10,7 @@ import asyncio
 import json
 import os
 import re
+import shutil
 import subprocess
 import tempfile
 import httpx
@@ -60,26 +61,29 @@ async def run(base_url: str, model: str, limit: int | None = None) -> dict:
     async with httpx.AsyncClient() as client:
         samples = await _gen(client, base_url, model, problems)
 
-    # write samples in evalplus format and grade with its harness
+    # write samples, then grade in the native-arm64 Linux container (evalplus's
+    # execution sandbox doesn't work on macOS — see grading/Dockerfile). Fresh
+    # tempdir per run so evalplus's cached *_eval_results.json never goes stale.
     d = tempfile.mkdtemp(prefix="evalplus-")
-    sfile = os.path.join(d, "samples.jsonl")
-    with open(sfile, "w") as f:
+    with open(os.path.join(d, "samples.jsonl"), "w") as f:
         for tid, sol in samples.items():
             f.write(json.dumps({"task_id": tid, "solution": sol}) + "\n")
 
+    docker = shutil.which("docker") or "/usr/local/bin/docker"
     proc = subprocess.run(
-        ["python", "-m", "evalplus.evaluate", "--dataset", "humaneval", "--samples", sfile],
+        [docker, "run", "--rm", "-v", f"{d}:/data", "llmbench-evalplus",
+         "python", "-m", "evalplus.evaluate", "--dataset", "humaneval", "--samples", "/data/samples.jsonl"],
         capture_output=True, text=True, timeout=1800,
     )
     out = proc.stdout + proc.stderr
-    base = _passat1(out, "HumanEval ")
-    plus = _passat1(out, "HumanEval+")
+    base = _passat1(out, "base tests")
+    plus = _passat1(out, "extra tests")
     return {"eval": "humaneval+", "pass@1_base": base, "pass@1_plus": plus,
             "score": plus if plus is not None else 0.0, "n": len(samples),
-            "raw": out[-400:] if base is None else ""}
+            "raw": out[-500:] if base is None else ""}
 
 
 def _passat1(text: str, marker: str):
-    # evalplus prints lines like 'HumanEval (base tests)\npass@1: 0.7561'
-    m = re.search(re.escape(marker) + r".*?pass@1:\s*([0-9.]+)", text, re.DOTALL)
+    # evalplus prints: 'humaneval (base tests)\npass@1:\t0.7561'
+    m = re.search(re.escape(marker) + r"\).*?pass@1:\s*([0-9.]+)", text, re.DOTALL)
     return round(float(m.group(1)), 4) if m else None

@@ -22,9 +22,10 @@ def l0(rows):
     print(f"{'engine':10} {'scenario':12} {'ttft_s':>7} {'decode_t/s':>10} {'prefill_t/s':>11} "
           f"{'wired_GB':>8} {'ok/fail':>7}")
     for r in perf:
+        dec = f"{r.get('decode_tps',0):10.1f}" if r.get("kind") == "decode" else f"{'-':>10}"
+        pre = f"{r.get('prefill_tps',0):11.0f}" if r.get("kind") == "prefill" else f"{'-':>11}"
         print(f"{r['engine']:10} {r['scenario']:12} {r.get('ttft_p50',0):7.2f} "
-              f"{r.get('decode_tps',0):10.1f} {r.get('prefill_tps',0):11.0f} "
-              f"{r.get('mem_wired_gb',0):8.1f} {r['ok']}/{r['fail']}")
+              f"{dec} {pre} {r.get('mem_wired_gb',0):8.1f} {r['ok']}/{r['fail']}")
 
     print("\n=== L0 concurrency (system throughput) ===")
     print(f"{'engine':10} {'c':>3} {'system_t/s':>10} {'ttft_p50':>8} {'ttft_p90':>8} {'ok/fail':>7}")
