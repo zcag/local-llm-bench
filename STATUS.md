@@ -36,6 +36,12 @@ Next: install engines, pull model zoo, build workload/eval layer (L0→L3).
 3. **L0 engine bake-off** — pull GGUF Qwen3-Coder-30B-A3B, run cross-engine grid (mlx / llama.cpp / ollama×2 / lmstudio) at concurrency {1,2,4,8,16} + 30-min soak.
 4. **Workload/eval layer** — wire Aider polyglot, SWE-bench subset, BFCL, tool-call suite, needle; LLM-judge via Claude API (grader-only).
 
+## Public repo (live)
+github.com/zcag/local-llm-bench (public, MIT, main). README + docs/ (methodology,
+pitfalls, reproduce) + raw results published. **`git push origin main` after each
+commit** so the public repo stays in sync as the re-run finalizes. Tela writeup link
+in README is a TBD placeholder — wire the circular link once the URL exists.
+
 ## BREADTH-RESTORATION QUEUE (locked contract — see PLAN.md; no contender dropped)
 Execute in order across autonomous wakeups. Mark [x] when done. GPU-bound items are serial.
 
