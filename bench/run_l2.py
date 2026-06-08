@@ -28,7 +28,10 @@ PROXY_URL = f"http://127.0.0.1:{PROXY_PORT}"
 HARNESS_BASE = f"{PROXY_URL}/v1"
 CCR_PORT = 3456
 CCR_URL = f"http://127.0.0.1:{CCR_PORT}"
-ALL_HARNESSES = [Aider(), OpenCode(), Goose(), Crush(), ClaudeCode()]
+# opencode excluded: won't run headless against a hermetic custom-provider config
+# (initializes then hangs, 0 model requests, no error). The daily `lcld` use relies
+# on opencode's own persisted auth/config, which a clean benchmark deliberately avoids.
+ALL_HARNESSES = [Aider(), Goose(), Crush(), ClaudeCode()]
 LOGDIR = "/tmp/llmbench"
 
 
@@ -91,7 +94,8 @@ def run_one(harness, task_id, model):
     workdir = tempfile.mkdtemp(prefix=f"l2-{harness.name}-{task_id}-")
     meta = l2_tasks.prepare(task_id, workdir)
     proxy_reset()
-    res = harness.run(workdir, meta["instruction"], meta["solution_files"], harness_base(harness), model)
+    res = harness.run(workdir, meta["instruction"], meta["solution_files"], harness_base(harness),
+                      model, timeout=900)   # agentic harnesses (claude-code/crush) need headroom
     stats = proxy_stats()
     graded = l2_tasks.grade(workdir, meta["test_files"])
     row = {

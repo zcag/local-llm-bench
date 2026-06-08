@@ -92,8 +92,21 @@ use) doesn't hold here; the steady-state numbers match the burst numbers.
   concurrency 1 deferred to end of run (changes no ranking — disqualified on 7 t/s
   speed regardless; verified separately that it generates correct code).
 
-## L2 — Agent harness
-_pending._
+## L2 — Agent harness shootout (model = 30b-a3b-4bit-DWQ, via measurement proxy)
+
+Same model, same polyglot tasks, token usage tallied uniformly by a proxy in
+front of MLX. Harnesses: **aider, goose, crush, claude-code** (the latter via the
+claude-code-router shim translating Anthropic→OpenAI→proxy).
+
+**opencode excluded** (documented): won't run headless against a hermetic
+custom-provider config — initializes then hangs with 0 model requests and no error.
+The daily `lcld` setup relies on opencode's own persisted auth/config, which a clean
+reproducible benchmark deliberately avoids.
+
+Early validation signal (1 hard task, affine-cipher) — token cost varies wildly
+for identical work: **aider ~28k**, **goose ~16k**, **claude-code ~179k**,
+**crush ~241k** prompt tokens. Full results pending.
+_full run pending._
 
 ## L3 — Real tasks + embed/RAG
 _pending._
