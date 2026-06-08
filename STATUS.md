@@ -72,8 +72,11 @@ Execute in order across autonomous wakeups. Mark [x] when done. GPU-bound items 
 - [ ] embed/RAG — qwen3-embedding:0.6b throughput + recall@k
 - [ ] real repo tasks — 2-3 small tasks from ~/proj via the L2-winner harness
 
-### Synthesis
-- [ ] full exec-summary + recommended stack + surprises; commit; robot ping
+### Synthesis (closing step, once all layers gated + done)
+- [ ] full exec-summary in FINDINGS.md: recommended stack + per-layer winners + surprises + which contenders hit real walls + "independently audited" note
+- [ ] **create the tela writeup section** (Tela MCP: create_page under a suitable space) from the final synthesis — narrative for the blog
+- [ ] **wire circular links**: put the real tela URL into README.md + docs/README.md (replace the "(link TBD)" placeholders); set repo homepage to tela; (tela side links back to github.com/zcag/local-llm-bench). commit + `git push origin main`
+- [ ] robot ping Cagdas with audited headline results + the tela + github links
 
 ## Open decisions
 - Model list for L1 (confirm: Coder-Next, 30B-A3B quant sweep 4/6/8, gpt-oss-20b, GLM-Air, Devstral, Qwen2.5-Coder-32B). Big downloads — confirm before pulling.
