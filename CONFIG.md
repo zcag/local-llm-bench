@@ -13,7 +13,7 @@ Legend: status = todo | applied | **verified** | wall(proven)
 | mlx_lm | all-GPU (inherent), correct chat template | MLX is Metal-only | default + --model | decode 90 t/s = GPU; template from tokenizer | **verified** |
 | llama.cpp | full offload, FA on, **--parallel ≥ concurrency**, big batch | llama-server --help | -ngl 999 --flash-attn on -c 34816 --jinja | 70.8 t/s ⇒ full GPU; **BUT n_parallel=4 auto ⇒ concurrency c8/c16 capped → RE-RUN with --parallel 16 -b 2048 -ub 512** | todo (perf ok, concurrency unfair) |
 | ollama-GGUF | full offload, FA on, num_ctx | ollama env | OLLAMA_FLASH_ATTENTION=1, CTX=34816, KEEP_ALIVE=-1 | log: GPULayers:49(0..48), FA Enabled | **verified** |
-| ollama-MLX | (investigate: may only run registry models) | memory note | — | — | todo |
+| ollama-MLX | (investigate) | — | — | ollama 0.23.1: no CLI/serve flag to select an MLX backend; applies only to specific ollama-registry MLX models, NOT an arbitrary GGUF. Can't serve our cross-engine model via MLX → not a separate comparable row. The `ollama` row above IS ollama's real path for this model (GGML/llama.cpp backend). | **n/a (documented)** |
 | LM Studio | GPU max, FA, context | lms load flags | --gpu max --context-length 34816 | needs verify (offload + FA in lms log) | todo |
 | MLC-LLM | Metal, full offload | mlc docs | nightly CPU+ai wheels installed | **`import tvm` crashes: `libc++abi: terminating due to uncaught exception of type tvm::ffi::Error`** — runtime won't init on this macOS/arm64 (nightlies also mismatched: mlc-llm dev162 vs mlc-ai dev1070). Even if fixed, MLC needs per-model compilation + Qwen3-Next-MoE arch unsupported. | **wall (proven)** |
 | spec-decode | mlx --draft-model on DWQ-30B | mlx_lm docs / memory | — | — | todo |
