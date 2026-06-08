@@ -44,7 +44,15 @@ t/s and TTFT stays sub-second through c=4. ollama also batches poorly.
 - LM Studio ≈ llama.cpp on throughput (it *is* llama.cpp underneath) but adds a
   small serving overhead and a higher cold TTFT.
 
-Soak/thermal: pending (soak-only run on mlx + llama.cpp).
+### Soak / thermal (8-min sustained decode)
+| engine | first-min t/s | last-min t/s | throttle |
+|---|---|---|---|
+| mlx_lm.server | 90.3 | 90.0 | **0.3%** |
+| llama.cpp | 70.7 | 70.6 | **0.1%** |
+
+**This M4 Pro does not thermally throttle on sustained single-stream decode** —
+burst ≈ sustained. The earlier worry (that a 30s speed run would overstate daily
+use) doesn't hold here; the steady-state numbers match the burst numbers.
 
 ## L1 — Model × quant
 _pending — zoo downloading._

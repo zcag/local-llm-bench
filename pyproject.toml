@@ -9,6 +9,7 @@ dependencies = [
     "transformers>=4.44",   # exact output-token counting via the served tokenizer
     "rich>=13.0",
     "evalplus>=0.3.1",      # HumanEval+/MBPP+ harness (L1 coding correctness)
+    "pytest>=8.0",          # L2 polyglot task grading
 ]
 
 [tool.uv]
