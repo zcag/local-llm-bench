@@ -39,7 +39,7 @@ def build_engines() -> list:
     return out
 
 
-async def bench_engine(engine_name: str, quant: str, eng, soak_s: float):
+async def bench_engine(engine_name: str, quant: str, eng, soak_s: float, soak_only: bool = False):
     base = eng.base_url
     model = eng.served_id()
     print(f"\n=== {engine_name} ({quant}) :{eng.port} ===")
@@ -54,6 +54,19 @@ async def bench_engine(engine_name: str, quant: str, eng, soak_s: float):
         eng.start(log_path=f"{LOGDIR}/{engine_name}.log", ready_timeout=600)
     print("  ready, warmup…")
     await warmup(base, model, n=2)
+
+    if soak_only:
+        if soak_s > 0:
+            print(f"  soak {soak_s:.0f}s…")
+            sk = await soak(base, model, scenarios.decode_messages(), duration_s=soak_s,
+                            max_tokens=256, extra=scenarios.IGNORE_EOS)
+            write({"layer": "L0", "engine": engine_name, "quant": quant,
+                   "model": "qwen3-coder-30b", "scenario": "soak", "kind": "thermal", **sk})
+            print(f"  soak: first={sk.get('decode_tps_first_min')} last={sk.get('decode_tps_last_min')} "
+                  f"throttle={sk.get('throttle_pct')}% per_min={sk.get('per_min')}")
+        eng.stop()
+        time.sleep(5)
+        return
 
     # 1) single-stream perf scenarios (decode + prefill at lengths) + memory
     for label, msgs, mx, kind in scenarios.perf_scenarios():
@@ -115,6 +128,7 @@ async def bench_engine(engine_name: str, quant: str, eng, soak_s: float):
 async def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--soak", type=float, default=480, help="soak seconds per engine (0 to skip)")
+    ap.add_argument("--soak-only", action="store_true", help="skip perf+concurrency, only soak")
     ap.add_argument("--only", default="", help="comma list: mlx,llama.cpp,ollama,lmstudio")
     args = ap.parse_args()
 
@@ -128,7 +142,7 @@ async def main():
         quiesce.assert_idle()
         for name, quant, eng in engines:
             try:
-                await bench_engine(name, quant, eng, args.soak)
+                await bench_engine(name, quant, eng, args.soak, soak_only=args.soak_only)
             except Exception as e:  # noqa: BLE001 — one engine failing shouldn't sink the run
                 print(f"  !! {name} failed: {type(e).__name__}: {e}")
                 write({"layer": "L0", "engine": name, "scenario": "ERROR", "error": str(e)})

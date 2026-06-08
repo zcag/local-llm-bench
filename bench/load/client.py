@@ -122,7 +122,9 @@ async def stream_chat(
         total_s=total_s,
         prompt_tokens=ptok,
         completion_tokens=ctok,
-        decode_tps=(ctok - 1) / gen_s if ctok > 1 else 0.0,
+        # decode rate needs enough generated tokens to be meaningful; a 1-2 token
+        # reply (e.g. prefill scenarios) over ~0s would otherwise explode to ~1e9.
+        decode_tps=(ctok - 1) / gen_s if ctok >= 8 else 0.0,
         prefill_tps=ptok / ttft if ttft > 0 and ptok else 0.0,
         finish_reason=finish,
         text=text,
