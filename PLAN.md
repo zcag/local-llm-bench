@@ -1,5 +1,23 @@
 # Local LLM Stack — End-to-End Benchmark
 
+## CONTRACT (locked): breadth is the point
+Every engine, model, and harness is a CONTENDER — none may be dropped from the
+comparison. Economize only on DEPTH (task counts, repeat counts) and only when it
+doesn't erase a comparison. A contender that "doesn't work" is investigated and
+made to work at its best config; if it's a genuine wall, that's PROVEN with
+evidence and documented — never silently cut. Full-breadth matrix:
+- Engines: mlx_lm · llama.cpp · ollama-GGUF · ollama-MLX · LM Studio · MLC-LLM
+  (+ spec-decode config variant where supported)
+- Models: all 8, with tool-calling made to work per model (engine×model cell)
+  Evals: HumanEval+ · MBPP+ · BFCL · IFEval · long-context · tool-calling
+- Harnesses: aider(best-config) · opencode · goose · crush · claude-code
+  (+ attempt cline/continue/roo — prove if GUI-walled)
+- Suites: attempt SWE-bench (prove if x86-on-ARM is a wall)
+- Depth concessions: polyglot Python + partial task count; n=3 repeats.
+
+---
+
+
 **Goal:** publishable/blog-grade, reproducible benchmark of the whole local-LLM stack on `tardis`,
 from inference engine → model/quant → agent harness → real end-to-end workload, plus the embed/RAG path.
 **Not** a quick "which is faster" — a defensible, charted, version-pinned comparison.
