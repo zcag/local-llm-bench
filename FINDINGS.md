@@ -199,8 +199,20 @@ tasks, test-blind, identical prompt + caps, tokens tallied by the proxy.
 - Reliability: claude-code & opencode hit the 900 s cap on most tasks; opencode also
   intermittently hangs with 0 requests headless.
 
-## L3 — Real tasks + embed/RAG
-_pending._
+## L3 — Embed / RAG
+**qwen3-embedding:0.6b** (the live embed model, :11435): 1024-dim, **53.4 embeds/sec**
+(batched), **recall@1 = 1.00, recall@3 = 1.00** on a 20-doc / 12-query labelled set
+(topic-clustered: networking, biology, finance, algorithms, history, geography). Perfect
+retrieval on this set — the 0.6B embedder is more than adequate for small/medium local
+RAG; a larger/noisier corpus would be needed to find its ceiling. Real-repo agentic
+tasks: covered by L2 (polyglot, test-backed) — a separate datak/migros task run was
+judged redundant given L2 already measures real agentic coding.
 
-## L3 — Real tasks + embed/RAG
-_pending._
+## L3 — Embed / RAG
+**qwen3-embedding:0.6b** (the live embed model, :11435): 1024-dim, **53.4 embeds/sec**
+(batched), **recall@1 = 1.00, recall@3 = 1.00** on a 20-doc / 12-query labelled set
+(topic-clustered: networking, biology, finance, algorithms, history, geography). Perfect
+retrieval on this set — the 0.6B embedder is more than adequate for small/medium local
+RAG; a larger/noisier corpus would be needed to find its ceiling. Real-repo agentic
+tasks: covered by L2 (polyglot, test-backed) — a separate datak/migros task run was
+judged redundant given L2 already measures real agentic coding.
