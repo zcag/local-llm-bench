@@ -11,7 +11,7 @@ benchmarks skip — **audits itself and publishes the bugs it caught in its own 
 results.** If you run models locally on a Mac, the tooling here is meant to be
 lifted and reused.
 
-> 📊 **Narrative writeup:** *(coming soon on my tela blog — link TBD)*
+> 📊 **Narrative writeup:** **[Read it on the blog](https://tela.cagdas.io/spaces/10/pages/229/benchmarking-a-whole-local-llm-stack-on-an-m4-pro-and)**
 > 📁 **This repo** is the tooling + raw data + methodology the writeup draws on.
 > 🔬 **Status:** results are being finalized under a verified-config re-run (see
 > [`FIXES.md`](FIXES.md)); the harness and methodology are stable. Numbers in

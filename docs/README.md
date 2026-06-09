@@ -1,7 +1,7 @@
 # Docs
 
 Specialized docs for the local-LLM-stack benchmark. The narrative writeup lives on
-the [tela blog](#) *(link TBD)*; this is the detailed-data + methods home it links to.
+the [tela blog](https://tela.cagdas.io/spaces/10/pages/229/benchmarking-a-whole-local-llm-stack-on-an-m4-pro-and); this is the detailed-data + methods home it links to.
 
 ## Pages
 - **[methodology.md](methodology.md)** — the four-layer design, scenarios, grading,
