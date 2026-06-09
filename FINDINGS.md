@@ -3,6 +3,46 @@
 Running log of results as each layer completes. Numbers from `results/runs.jsonl`
 (reproduce: `uv run python -m bench.report`). Box: M4 Pro, 64 GB, wired 56 GB.
 
+---
+
+## Executive summary
+
+**Recommended local-LLM stack for this box (Apple M4 Pro, 64 GB, single user):**
+**mlx_lm.server** + **Qwen3-Coder-30B-A3B-4bit-DWQ** + **aider/goose** as the agent,
+with **qwen3-embedding:0.6b** for RAG.
+
+**Per-layer winners**
+- **L0 engine:** **MLX** for single-user (90 t/s decode, best prefill, leanest at
+  matched bit-budget). **llama.cpp** for multi-user (batches to 134 t/s vs MLX's flat ~80).
+- **L1 model/quant:** **30B-A3B-4bit-DWQ** — best HumanEval+ (0.933/0.902), reliable
+  tools, full 32k retention, 90 t/s, 20 GB.
+- **L2 harness:** **aider/goose** for token-efficient daily use (~16k tok, fast);
+  claude-code for the most task completions, but at ~15-45× the token/time cost.
+- **L3 embed:** **qwen3-embedding:0.6b** — recall@1/@3 = 1.00 on the test set, 53 emb/s.
+
+**Top surprises**
+1. **DWQ-4bit matches 8-bit quality at 4-bit cost** — and *beats the 80B flagship*
+   (Coder-Next) on HumanEval+. Quant saturates by 4-bit-DWQ; don't pay for more bits.
+2. **MLX batches but gains no aggregate throughput from it** (flat ~80 t/s); llama.cpp
+   scales to 134. (My first pass wrongly concluded "MLX can't batch" — a config bug.)
+3. **Non-Qwen3 tool-calling is a serving-format minefield** — gpt-oss (harmony) and
+   Mistral (`[TOOL_CALLS]`) formats aren't parsed by mlx_lm; llama.cpp parses some but
+   not parallel calls. The Qwen3-Coder family tool-calls reliably via mlx; nothing else does.
+4. **Dense models are 5-13× slower than MoE** (qwen2.5-32b 7 t/s vs 30B-A3B 90).
+5. **Agent harnesses span ~45× token cost** for identical work (goose 15.5k vs opencode 696k/task).
+6. **Speculative decoding is net-negative for A3B MoE** (0.64×) — draft overhead dominates.
+7. **MLC-LLM is a wall** on this box (tvm runtime crash); SWE-bench eval infra works but
+   full local-model runs are impractical, not a wall.
+
+**Methodology / trust:** independently audited — every result is configuration-verified
+(log evidence) and anchor-checked (vs physics / published numbers) before it's trusted.
+The serious bugs caught *in our own first-pass results* (prefix-cache TTFT, un-batched
+concurrency, test-leak, timeout-tied identical scores, quant mismatch) are documented in
+[FIXES.md](FIXES.md) and [docs/pitfalls.md](docs/pitfalls.md). That discipline — not any
+single number — is the contribution.
+
+---
+
 ## Contenders that hit real walls (attempted, documented — not silently dropped)
 - **MLC-LLM (engine):** `import tvm` crashes on this macOS/arm64 box
   (`tvm::ffi::Error`); the nightly wheels are version-mismatched and even past that,
