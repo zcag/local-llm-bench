@@ -13,9 +13,10 @@ lifted and reused.
 
 > 📊 **Narrative writeup:** **[Read it on the blog](https://tela.cagdas.io/spaces/10/pages/229/benchmarking-a-whole-local-llm-stack-on-an-m4-pro-and)**
 > 📁 **This repo** is the tooling + raw data + methodology the writeup draws on.
-> 🔬 **Status:** results are being finalized under a verified-config re-run (see
-> [`FIXES.md`](FIXES.md)); the harness and methodology are stable. Numbers in
-> [`FINDINGS.md`](FINDINGS.md) marked *provisional* are mid-re-run.
+> ✅ **Status: complete.** All four layers run, independently audited, every result
+> config-verified + anchor-checked. Headline results + recommended stack in
+> [`FINDINGS.md`](FINDINGS.md); the bugs caught along the way in
+> [`FIXES.md`](FIXES.md) / [`docs/pitfalls.md`](docs/pitfalls.md).
 
 ## What it measures — four isolatable layers
 
