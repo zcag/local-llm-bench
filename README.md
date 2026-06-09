@@ -29,6 +29,9 @@ lifted and reused.
 
 The box under test: **Apple M4 Pro, 64 GB unified, macOS** (single-user inference rig).
 
+> 🧭 **Just want a recommendation?** → [`docs/choosing.md`](docs/choosing.md) — pros/cons
+> per component + "pick X if…" by scenario.
+
 ## The part worth stealing: fairness as a gate, not a hope
 
 Every result must pass a check before it's trusted — and we got this *wrong* on the

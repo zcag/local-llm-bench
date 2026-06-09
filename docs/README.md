@@ -4,8 +4,10 @@ Specialized docs for the local-LLM-stack benchmark. The narrative writeup lives 
 the [tela blog](https://tela.cagdas.io/spaces/10/pages/229/benchmarking-a-whole-local-llm-stack-on-an-m4-pro-and); this is the detailed-data + methods home it links to.
 
 ## Pages
+- **[choosing.md](choosing.md)** — *pick X if…* — pros/cons per component +
+  scenario-based stack picks. Start here if you just want a recommendation.
 - **[methodology.md](methodology.md)** — the four-layer design, scenarios, grading,
-  and the verified-config gate. Start here.
+  and the verified-config gate.
 - **[pitfalls.md](pitfalls.md)** — *the most useful page.* The fairness traps that
   silently corrupt local-LLM benchmarks, the ones we fell into, and how each was
   caught and fixed. If you only read one page, read this.
