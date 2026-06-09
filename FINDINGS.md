@@ -8,8 +8,13 @@ Running log of results as each layer completes. Numbers from `results/runs.jsonl
   (`tvm::ffi::Error`); the nightly wheels are version-mismatched and even past that,
   MLC needs per-model compilation and doesn't support the Qwen3-Next-MoE architecture.
   Proven wall — see [CONFIG.md](CONFIG.md).
-- _(others appended here as encountered: e.g. SWE-bench x86-Docker-on-ARM, GUI-only
-  harnesses if they can't run headless.)_
+- **SWE-bench: eval infra WORKS on this arm64 box (NOT a wall).** Probed one
+  Verified instance (astropy-12907) with the gold patch through swebench 4.1.0's
+  Docker harness → built + "Instances resolved: 1", zero errors (OrbStack runs the
+  x86 layers under emulation fine). A *full* run is out of scope on practicality, not
+  capability: generating patches needs an agentic harness driving the local 30B
+  (~900s/task per L2) over 500 instances and would score ~0 for a local model —
+  cost-vs-signal, a scope decision. Documented, not faked.
 
 ## L0 — Engine bake-off (Qwen3-Coder-30B-A3B, Q4, identical model across engines)
 
