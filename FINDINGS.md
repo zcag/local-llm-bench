@@ -196,6 +196,10 @@ tasks, test-blind, identical prompt + caps, tokens tallied by the proxy.
   Reach for claude-code/crush only when you need the extra completions and can pay
   the 15–45× cost. opencode (the incumbent `lcld`) works but is the heaviest and
   flakiest headless — fine interactively, poor for batch/automation.
+- ccr shim overhead (F16): a direct ccr-vs-proxy probe timed out, but from the L2
+  data the attribution is clear — claude-code's ~260k tokens/task came with ~11
+  requests, so the cost is its **own multi-turn agentic context growth** (tool defs +
+  growing history re-sent each turn), not the per-request Anthropic↔OpenAI shim.
 - Reliability: claude-code & opencode hit the 900 s cap on most tasks; opencode also
   intermittently hangs with 0 requests headless.
 
