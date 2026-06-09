@@ -1,0 +1,83 @@
+{
+  "model_tag": "qwen2.5-coder-32b-8bit",
+  "engine": "llamacpp",
+  "eval": "bfcl_style",
+  "passed": 2,
+  "total": 11,
+  "score": 0.182,
+  "by_category": {
+    "simple": "0/3",
+    "multiple": "0/2",
+    "parallel": "0/2",
+    "parallel_multiple": "0/2",
+    "irrelevance": "2/2"
+  },
+  "cases": [
+    {
+      "id": "simple_weather",
+      "cat": "simple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "simple_stock",
+      "cat": "simple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "simple_enum",
+      "cat": "simple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "multiple_pick_stock",
+      "cat": "multiple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "multiple_pick_dist",
+      "cat": "multiple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "parallel_weather",
+      "cat": "parallel",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "parallel_stocks",
+      "cat": "parallel",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "parmulti_weather_stock",
+      "cat": "parallel_multiple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "parmulti_convert_translate",
+      "cat": "parallel_multiple",
+      "passed": false,
+      "reason": "calls=[]"
+    },
+    {
+      "id": "irrelevance_fact",
+      "cat": "irrelevance",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "irrelevance_chat",
+      "cat": "irrelevance",
+      "passed": true,
+      "reason": "ok"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "model_tag": "gpt-oss-20b",
-  "model": "mlx-community/gpt-oss-20b-MXFP4-Q8",
+  "engine": "llamacpp",
   "eval": "longcontext",
   "passed": 0,
   "total": 12,
@@ -17,84 +17,84 @@
       "depth": 0.1,
       "passed": false,
       "want": "7000-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 4000,
       "depth": 0.5,
       "passed": false,
       "want": "7007-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 4000,
       "depth": 0.9,
       "passed": false,
       "want": "7014-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 8000,
       "depth": 0.1,
       "passed": false,
       "want": "7100-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 8000,
       "depth": 0.5,
       "passed": false,
       "want": "7107-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 8000,
       "depth": 0.9,
       "passed": false,
       "want": "7114-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 16000,
       "depth": 0.1,
       "passed": false,
       "want": "7200-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 16000,
       "depth": 0.5,
       "passed": false,
       "want": "7207-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 16000,
       "depth": 0.9,
       "passed": false,
       "want": "7214-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 32000,
       "depth": 0.1,
       "passed": false,
       "want": "7300-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 32000,
       "depth": 0.5,
       "passed": false,
       "want": "7307-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     },
     {
       "len": 32000,
       "depth": 0.9,
       "passed": false,
       "want": "7314-XQ",
-      "got": "<|channel|>analysis<|message|>We have a "
+      "got": ""
     }
   ]
 }

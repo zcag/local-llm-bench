@@ -1,0 +1,70 @@
+{
+  "model_tag": "30b-a3b-4bit",
+  "engine": "mlx",
+  "eval": "ifeval_style",
+  "passed": 10,
+  "total": 12,
+  "score": 0.833,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": false,
+      "got": "Cats love to sleep all day."
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "forbidden_word",
+      "passed": false,
+      "got": "A dense forest stretches endlessly, where tall trees tower o"
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}

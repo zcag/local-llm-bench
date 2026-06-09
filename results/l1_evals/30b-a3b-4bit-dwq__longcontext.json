@@ -1,6 +1,6 @@
 {
   "model_tag": "30b-a3b-4bit-dwq",
-  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-4bit-DWQ",
+  "engine": "mlx",
   "eval": "longcontext",
   "passed": 12,
   "total": 12,

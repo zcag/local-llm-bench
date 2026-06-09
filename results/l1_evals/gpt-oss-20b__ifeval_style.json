@@ -1,0 +1,70 @@
+{
+  "model_tag": "gpt-oss-20b",
+  "engine": "llamacpp",
+  "eval": "ifeval_style",
+  "passed": 9,
+  "total": 12,
+  "score": 0.75,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": false,
+      "got": ""
+    },
+    {
+      "id": "forbidden_word",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": false,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": false,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}

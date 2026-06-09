@@ -1,14 +1,14 @@
 {
   "model_tag": "qwen2.5-coder-32b-8bit",
-  "model": "mlx-community/Qwen2.5-Coder-32B-Instruct-8bit",
+  "engine": "llamacpp",
   "eval": "longcontext",
-  "passed": 8,
+  "passed": 9,
   "total": 12,
-  "score": 0.667,
+  "score": 0.75,
   "by_length": {
     "4000": 1.0,
     "8000": 1.0,
-    "16000": 0.67,
+    "16000": 1.0,
     "32000": 0.0
   },
   "cases": [
@@ -71,7 +71,7 @@
     {
       "len": 16000,
       "depth": 0.9,
-      "passed": false,
+      "passed": true,
       "want": "7214-XQ",
       "got": ""
     },

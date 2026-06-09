@@ -1,0 +1,70 @@
+{
+  "model_tag": "30b-a3b-4bit-dwq",
+  "engine": "mlx",
+  "eval": "ifeval_style",
+  "passed": 9,
+  "total": 12,
+  "score": 0.75,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": false,
+      "got": "Cats are independent animals."
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": false,
+      "got": "Gardens have always held a special place in human hearts, of"
+    },
+    {
+      "id": "forbidden_word",
+      "passed": false,
+      "got": "A dense woodland stretches endlessly, where towering trees c"
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "model_tag": "coder-next-mxfp4",
-  "model": "mlx-community/Qwen3-Coder-Next-mxfp4",
+  "engine": "mlx",
   "eval": "longcontext",
   "passed": 12,
   "total": 12,

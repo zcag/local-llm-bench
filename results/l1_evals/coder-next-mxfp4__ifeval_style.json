@@ -1,0 +1,70 @@
+{
+  "model_tag": "coder-next-mxfp4",
+  "engine": "mlx",
+  "eval": "ifeval_style",
+  "passed": 11,
+  "total": 12,
+  "score": 0.917,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "forbidden_word",
+      "passed": false,
+      "got": "A wood, deep and dim, with tall trunks rising from rich, dar"
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}

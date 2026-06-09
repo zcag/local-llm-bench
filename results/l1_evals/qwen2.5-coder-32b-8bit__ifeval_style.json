@@ -1,0 +1,70 @@
+{
+  "model_tag": "qwen2.5-coder-32b-8bit",
+  "engine": "llamacpp",
+  "eval": "ifeval_style",
+  "passed": 11,
+  "total": 12,
+  "score": 0.917,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": false,
+      "got": "Gardens are sanctuaries of nature, where the earth's vibrant"
+    },
+    {
+      "id": "forbidden_word",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}

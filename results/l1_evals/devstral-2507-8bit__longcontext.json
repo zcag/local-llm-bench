@@ -1,15 +1,15 @@
 {
   "model_tag": "devstral-2507-8bit",
-  "model": "mlx-community/Devstral-Small-2507-8bit",
+  "engine": "llamacpp",
   "eval": "longcontext",
-  "passed": 12,
+  "passed": 6,
   "total": 12,
-  "score": 1.0,
+  "score": 0.5,
   "by_length": {
     "4000": 1.0,
     "8000": 1.0,
-    "16000": 1.0,
-    "32000": 1.0
+    "16000": 0.0,
+    "32000": 0.0
   },
   "cases": [
     {
@@ -57,42 +57,42 @@
     {
       "len": 16000,
       "depth": 0.1,
-      "passed": true,
+      "passed": false,
       "want": "7200-XQ",
       "got": ""
     },
     {
       "len": 16000,
       "depth": 0.5,
-      "passed": true,
+      "passed": false,
       "want": "7207-XQ",
       "got": ""
     },
     {
       "len": 16000,
       "depth": 0.9,
-      "passed": true,
+      "passed": false,
       "want": "7214-XQ",
       "got": ""
     },
     {
       "len": 32000,
       "depth": 0.1,
-      "passed": true,
+      "passed": false,
       "want": "7300-XQ",
       "got": ""
     },
     {
       "len": 32000,
       "depth": 0.5,
-      "passed": true,
+      "passed": false,
       "want": "7307-XQ",
       "got": ""
     },
     {
       "len": 32000,
       "depth": 0.9,
-      "passed": true,
+      "passed": false,
       "want": "7314-XQ",
       "got": ""
     }

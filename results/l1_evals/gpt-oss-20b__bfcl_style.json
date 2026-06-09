@@ -1,0 +1,83 @@
+{
+  "model_tag": "gpt-oss-20b",
+  "engine": "llamacpp",
+  "eval": "bfcl_style",
+  "passed": 7,
+  "total": 11,
+  "score": 0.636,
+  "by_category": {
+    "simple": "3/3",
+    "multiple": "2/2",
+    "parallel": "0/2",
+    "parallel_multiple": "0/2",
+    "irrelevance": "2/2"
+  },
+  "cases": [
+    {
+      "id": "simple_weather",
+      "cat": "simple",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "simple_stock",
+      "cat": "simple",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "simple_enum",
+      "cat": "simple",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "multiple_pick_stock",
+      "cat": "multiple",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "multiple_pick_dist",
+      "cat": "multiple",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "parallel_weather",
+      "cat": "parallel",
+      "passed": false,
+      "reason": "calls=[('get_weather', {'city': 'Tokyo'})]"
+    },
+    {
+      "id": "parallel_stocks",
+      "cat": "parallel",
+      "passed": false,
+      "reason": "calls=[('get_stock_price', {'ticker': 'AAPL'})]"
+    },
+    {
+      "id": "parmulti_weather_stock",
+      "cat": "parallel_multiple",
+      "passed": false,
+      "reason": "calls=[('get_weather', {'city': 'Oslo', 'unit': 'celsius'})]"
+    },
+    {
+      "id": "parmulti_convert_translate",
+      "cat": "parallel_multiple",
+      "passed": false,
+      "reason": "calls=[('convert_currency', {'amount': 100, 'from_cur': 'USD', 'to_cur': 'EUR'})]"
+    },
+    {
+      "id": "irrelevance_fact",
+      "cat": "irrelevance",
+      "passed": true,
+      "reason": "ok"
+    },
+    {
+      "id": "irrelevance_chat",
+      "cat": "irrelevance",
+      "passed": true,
+      "reason": "ok"
+    }
+  ]
+}

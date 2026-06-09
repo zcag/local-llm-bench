@@ -1,15 +1,15 @@
 {
   "model_tag": "30b-a3b-8bit",
-  "model": "mlx-community/Qwen3-Coder-30B-A3B-Instruct-8bit",
+  "engine": "mlx",
   "eval": "longcontext",
-  "passed": 12,
+  "passed": 10,
   "total": 12,
-  "score": 1.0,
+  "score": 0.833,
   "by_length": {
     "4000": 1.0,
     "8000": 1.0,
     "16000": 1.0,
-    "32000": 1.0
+    "32000": 0.33
   },
   "cases": [
     {
@@ -85,14 +85,14 @@
     {
       "len": 32000,
       "depth": 0.5,
-      "passed": true,
+      "passed": false,
       "want": "7307-XQ",
       "got": ""
     },
     {
       "len": 32000,
       "depth": 0.9,
-      "passed": true,
+      "passed": false,
       "want": "7314-XQ",
       "got": ""
     }

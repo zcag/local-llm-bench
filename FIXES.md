@@ -9,7 +9,8 @@ Status: CONFIRMED (verified in data/code) · FLAGGED (plausible, needs check) ·
 - F8 (-ub 2048), F12 (spread), F15 (ollama ctx), F18 (config per row), F19 (cold-first/soak-last) ✓.
 - F2 (coding independence) ✓ — re-ran all 8 at concurrency=1 w/ saved samples; ALL scores now distinct (ties were a timeout artifact); qwen2.5 0.0→0.902 (matches published ~0.90); HE+ & MBPP+ table rewritten. DWQ-4bit confirmed top.
 - F10/F13/F14 ✓ (code). MLC=wall, ollama-MLX=n/a (documented).
-- Open: F5 (+ L1 bfcl/ifeval/longctx re-eval pass), F6/F7 (L2 redo), F16, F17, spec-decode, SWE-bench, L3.
+- F5 ✓ — tool-calling fixed via llama.cpp (gpt-oss/devstral 0→0.64); verified caveats: parallel-calls=llama.cpp limit, qwen2.5 tools unmeasurable (no tool_calls emitted), gpt-oss longctx serving-broken (empty/harmony). Qwen3 family tools reliable via mlx. L1 non-coding table written.
+- Open: F6/F7 (L2 redo), F16, spec-decode, SWE-bench, L3.
 Nothing is a trusted result until its issue here is resolved AND verified with evidence (CONFIG.md).
 
 ## CRITICAL — invalidate published findings, must fix + re-run

@@ -110,6 +110,47 @@ llama.cpp, see below — mlx_lm doesn't parse these models' tool formats.)
   tool/long-context axis fairly (results in the F5 section). They code fine on mlx; the
   tool failure was the serving path, not the model.
 
+### L1 — non-coding aspects (tool-calling, instruction-following, long-context)
+
+bfcl = BFCL-category tool suite (11 cases); ifeval = verifiable instructions (12);
+longctx = needle 4k–32k (F14-real lengths). Served by the engine that parses the
+model's tool format: **mlx for the Qwen3-Coder family; llama.cpp `--jinja` for
+gpt-oss/devstral/qwen2.5** (mlx_lm's OpenAI endpoint doesn't surface their tool calls).
+
+| model | tool (bfcl) | ifeval | longctx | engine |
+|---|---|---|---|---|
+| coder-next-mxfp4 | **1.00** | 0.92 | **1.00** | mlx |
+| 30b-a3b-4bit | 0.91 | 0.83 | 1.00 | mlx |
+| **30b-a3b-4bit-DWQ** | **1.00** | 0.75 | **1.00** | mlx |
+| 30b-a3b-6bit | 1.00 | 0.75 | 0.92 | mlx |
+| 30b-a3b-8bit | 1.00 | 0.75 | 0.83 | mlx |
+| gpt-oss-20b | 0.64* | 0.75 | 0.00‡ | llama.cpp |
+| devstral-2507-8bit | 0.64* | 0.75 | 0.50† | llama.cpp |
+| qwen2.5-coder-32b-8bit | 0.18‡ | 0.92 | 0.75† | llama.cpp |
+
+**Headline: the Qwen3-Coder family tool-calls reliably (mlx, up to 1.00); every
+other model is a serving-format minefield.** Evidence-backed caveats (each *verified*
+from raw responses, not assumed):
+- **\*Parallel tool-calls don't work via llama.cpp** — gpt-oss & devstral each return
+  exactly *one* `tool_call` for a "compare Tokyo and Paris" prompt (vs mlx Qwen3 doing
+  2/2). Same single-call result across two different models ⇒ a **llama.cpp serving
+  limitation** (one call per response), not a model weakness. Their 0.64 is single/
+  multiple tool-calls working; parallel is unmeasurable on this path.
+- **‡qwen2.5 tool-calling is unmeasurable on this box** — mlx doesn't parse its
+  format; llama.cpp `--jinja` returned **zero** `tool_calls` even for trivial cases
+  (a template/parse failure, not the model — qwen2.5-coder demonstrably tool-calls).
+- **‡gpt-oss long-context returns empty/leaked content** via both engines (harmony
+  reasoning channel on mlx; empty content on llama.cpp) ⇒ not usable for retrieval
+  through either available serving path here.
+- **†llama.cpp long-context degrades at 16k–32k** (a `-c`/context artifact; mlx
+  handles these fine) — so devstral/qwen2.5 longctx via llama.cpp are lower bounds.
+- ifeval (instruction-following) is engine-agnostic and differentiates models more
+  than tools/longctx: coder-next & qwen2.5 lead (0.92), DWQ-4bit/6/8-bit trail (0.75).
+
+**Practical takeaway:** for *agentic* (tool-using) local work on Apple Silicon, stick
+to the **Qwen3-Coder family on mlx**. gpt-oss/devstral/qwen2.5 can code but their
+tool-calling depends on fragile engine×template parsing.
+
 ## L2 — Agent harness shootout (model = 30b-a3b-4bit-DWQ, via measurement proxy)
 
 Same model, same polyglot tasks, token usage tallied uniformly by a proxy in

@@ -1,0 +1,70 @@
+{
+  "model_tag": "30b-a3b-8bit",
+  "engine": "mlx",
+  "eval": "ifeval_style",
+  "passed": 9,
+  "total": 12,
+  "score": 0.75,
+  "cases": [
+    {
+      "id": "lowercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "uppercase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "exact_words",
+      "passed": false,
+      "got": "Cats gracefully hunt mice at night."
+    },
+    {
+      "id": "min_words",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "three_bullets",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "keyword_thrice",
+      "passed": false,
+      "got": "Gardens have always been humanity's way of creating pockets "
+    },
+    {
+      "id": "forbidden_word",
+      "passed": false,
+      "got": "A dense woodland stretches endlessly under towering canopies"
+    },
+    {
+      "id": "json_only",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "end_phrase",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "title_wrap",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "no_commas",
+      "passed": true,
+      "got": ""
+    },
+    {
+      "id": "numbered_list",
+      "passed": true,
+      "got": ""
+    }
+  ]
+}
