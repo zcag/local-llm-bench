@@ -68,6 +68,14 @@ llama.cpp's does.*
 burst ≈ sustained. The earlier worry (that a 30s speed run would overstate daily
 use) doesn't hold here; the steady-state numbers match the burst numbers.
 
+### Speculative decoding (L0 add-on) — net NEGATIVE here
+mlx_lm `--draft-model` (Qwen3-0.6B-4bit draft) on the DWQ-30B-A3B: decode **92.6 →
+59.4 t/s = 0.64× (36% SLOWER)**. Speculative decoding does *not* help this model on
+this box — the MoE activates only ~3B params/token so base decode is already fast,
+and the draft+verify overhead dominates the acceptance gain. (Per upstream notes it's
+also outright incompatible with Coder-Next's hybrid/linear-attention cache.) **Don't
+enable spec-decode for A3B MoE models.**
+
 ## L1 — Model × quant (engine = MLX, single-stream, temp 0 + seed)
 
 Coding re-run at concurrency=1 with saved generations (F2) — **all scores now
