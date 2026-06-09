@@ -157,15 +157,37 @@ Same model, same polyglot tasks, token usage tallied uniformly by a proxy in
 front of MLX. Harnesses: **aider, goose, crush, claude-code** (the latter via the
 claude-code-router shim translating Anthropic→OpenAI→proxy).
 
-**opencode excluded** (documented): won't run headless against a hermetic
-custom-provider config — initializes then hangs with 0 model requests and no error.
-The daily `lcld` setup relies on opencode's own persisted auth/config, which a clean
-reproducible benchmark deliberately avoids.
+All 5 harnesses (incl. opencode, fixed via `tool_call:true`) on 10 polyglot Python
+tasks, test-blind, identical prompt + caps, tokens tallied by the proxy.
 
-Early validation signal (1 hard task, affine-cipher) — token cost varies wildly
-for identical work: **aider ~28k**, **goose ~16k**, **claude-code ~179k**,
-**crush ~241k** prompt tokens. Full results pending.
-_full run pending._
+| harness | pass | median tokens/task | median s/task | timeouts | notes |
+|---|---|---|---|---|---|
+| **goose** | 0/10 | **15.5k** | **16** | 0 | leanest + fastest |
+| **aider** | 0/10 | 16.5k | 48 | 0 | lean, one-shot |
+| crush | 1/10 | 250k | 199 | 3 | agentic, spirals |
+| **claude-code** | **2/10** | 260k | 900 | 8 | most passes, via iteration; never self-terminates |
+| opencode | 0/10 | **696k** | 900 | 6 | spirals to 1.5–1.7M tok on some tasks; flaky headless (intermittent 0-request hangs) |
+
+### Conclusions
+- **Absolute pass rates are low across the board (0–2/10)** — these are the harder
+  polyglot tasks driven by a *local 30B-4bit*; consistent with public data that small
+  local models score poorly on polyglot. Not a harness defect — the model ceiling.
+- **The story is efficiency, and the spread is enormous (≈45×):** goose/aider solve
+  in **~16k tokens / 16–48 s**; claude-code/crush/opencode burn **250k–700k tokens
+  and 200–900 s** — and opencode can spiral to **1.5–1.7M tokens** on a single task.
+- **Agentic iteration buys a little:** claude-code's loop got 2/10 and crush 1/10
+  where the one-shot/light harnesses got 0 — but at **~16× the tokens and ~20× the
+  wall-clock**. claude-code never self-terminates on a local model (runs to the 900 s
+  cap every task).
+- **Recommendation:** for token-efficient daily local use, **aider or goose**.
+  Reach for claude-code/crush only when you need the extra completions and can pay
+  the 15–45× cost. opencode (the incumbent `lcld`) works but is the heaviest and
+  flakiest headless — fine interactively, poor for batch/automation.
+- Reliability: claude-code & opencode hit the 900 s cap on most tasks; opencode also
+  intermittently hangs with 0 requests headless.
+
+## L3 — Real tasks + embed/RAG
+_pending._
 
 ## L3 — Real tasks + embed/RAG
 _pending._

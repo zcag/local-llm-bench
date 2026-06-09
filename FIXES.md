@@ -10,7 +10,8 @@ Status: CONFIRMED (verified in data/code) · FLAGGED (plausible, needs check) ·
 - F2 (coding independence) ✓ — re-ran all 8 at concurrency=1 w/ saved samples; ALL scores now distinct (ties were a timeout artifact); qwen2.5 0.0→0.902 (matches published ~0.90); HE+ & MBPP+ table rewritten. DWQ-4bit confirmed top.
 - F10/F13/F14 ✓ (code). MLC=wall, ollama-MLX=n/a (documented).
 - F5 ✓ — tool-calling fixed via llama.cpp (gpt-oss/devstral 0→0.64); verified caveats: parallel-calls=llama.cpp limit, qwen2.5 tools unmeasurable (no tool_calls emitted), gpt-oss longctx serving-broken (empty/harmony). Qwen3 family tools reliable via mlx. L1 non-coding table written.
-- Open: F6/F7 (L2 redo), F16, spec-decode, SWE-bench, L3.
+- F6/F7/F11 ✓ — L2 redo done (5 harnesses, equal cages, test-blind); efficiency spread ~45x (goose 15.5k vs opencode 696k tok/task); claude-code most passes (2/10) via iteration at 16x cost; absolute pass low (local 30B hard polyglot).
+- Open: spec-decode, SWE-bench, L3, F16, synthesis+tela.
 Nothing is a trusted result until its issue here is resolved AND verified with evidence (CONFIG.md).
 
 ## CRITICAL — invalidate published findings, must fix + re-run
