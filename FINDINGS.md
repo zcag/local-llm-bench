@@ -70,51 +70,45 @@ use) doesn't hold here; the steady-state numbers match the burst numbers.
 
 ## L1 — Model × quant (engine = MLX, single-stream, temp 0 + seed)
 
-| model | decode t/s | prefill@32k | wired GB | HumanEval+ base/plus | tool | longctx |
+Coding re-run at concurrency=1 with saved generations (F2) — **all scores now
+independent and distinct** (the earlier cross-architecture ties were a
+concurrent-generation timeout artifact). decode/prefill/wired from the L0-style perf
+pass (audited-sound). Anchor: qwen2.5-coder-32b = 0.902 matches its published ~0.90.
+
+| model | decode t/s | wired GB | HumanEval+ b/p | MBPP+ b/p | tool | longctx |
 |---|---|---|---|---|---|---|
-| coder-next-mxfp4 (80B-A3B) | 67 | 580 | 45–51 | 0.909 / 0.872 | ✓ | ✓ |
-| 30b-a3b-4bit | 89 | 749 | 20–25 | 0.823 / 0.793 | 5/6 | ✓ |
-| **30b-a3b-4bit-DWQ** | **90** | 748 | **20–25** | **0.933 / 0.902** | ✓ | ✓ |
-| 30b-a3b-6bit | 69 | 729 | 28–33 | 0.933 / 0.902 | ✓ | ✓ |
-| 30b-a3b-8bit | 59 | 743 | 35–40 | 0.933 / 0.902 | ✓ | ✓ |
-| gpt-oss-20b | 74 | 684 | 15–17 | 0.890 / 0.878 | ✗* | ✗* |
-| devstral-2507-8bit (dense 24B) | 13 | 239 | 23–31 | 0.823 / 0.793 | ✗* | ✓ |
-| qwen2.5-coder-32b-8bit (dense 32B) | 7 | 154 | 38–51 | re-running† | ✗* | 0.67 |
+| coder-next-mxfp4 (80B-A3B) | 67 | 45–51 | 0.909 / 0.872 | 0.913 / 0.783 | ✓ | ✓ |
+| 30b-a3b-4bit | 89 | 20–25 | 0.860 / 0.811 | 0.847 / 0.714 | 5/6 | ✓ |
+| **30b-a3b-4bit-DWQ** | **90** | **20–25** | **0.933 / 0.902** | 0.905 / 0.770 | ✓ | ✓ |
+| 30b-a3b-6bit | 69 | 28–33 | 0.927 / 0.896 | 0.907 / 0.786 | ✓ | ✓ |
+| 30b-a3b-8bit | 59 | 35–40 | 0.927 / 0.902 | 0.910 / 0.783 | ✓ | ✓ |
+| gpt-oss-20b | 74 | 15–17 | 0.890 / 0.884 | 0.913 / 0.775 | F5† | F5† |
+| devstral-2507-8bit (dense 24B) | 13 | 23–31 | 0.823 / 0.793 | 0.812 / 0.709 | F5† | ✓ |
+| qwen2.5-coder-32b-8bit (dense 32B) | 7 | 38–51 | 0.902 / 0.866 | 0.881 / 0.767 | F5† | F5† |
 
-(tool = toolcalling score, ✓ = 6/6; longctx = needle 4k–32k, ✓ = 12/12)
+(tool ✓ = 6/6 BFCL-style; longctx ✓ = 12/12 needle 4k–32k; F5† = re-scored via
+llama.cpp, see below — mlx_lm doesn't parse these models' tool formats.)
 
-> [!CAUTION]
-> **L1 coding scores UNDER RE-VERIFICATION (audit F2).** Different architectures
-> tied to 3 decimals (30b-a3b-4bit == devstral both 0.823/0.793; 6/8/DWQ-4bit all
-> 0.933/0.902). Same-model quant ties may be real saturation, but the cross-model
-> tie is a red flag and the original runs didn't save samples to prove independence.
-> Re-running all 8 with saved generations before trusting the quant conclusions
-> below. Memory + decode-throughput numbers are audited-sound; coding pass@1 is not
-> yet. The gpt-oss/devstral/qwen2.5 tool+longctx scores are serving-path artifacts
-> (F5), not capability — being re-served via an engine that parses their formats.
-
-### Conclusions (PROVISIONAL — pending F2 re-verification)
+### Conclusions (coding now verified-independent)
 - **Winner for this box: `30b-a3b-4bit-DWQ`.** Fastest decode (90 t/s), leanest
-  memory (20–25 GB), and top-tier quality (HumanEval+ 0.902, tools ✓, 32k ✓) —
-  matching 6/8-bit quality at 4-bit cost. **DWQ is decisively worth it**: vanilla
-  4-bit drops to 0.793 and 5/6 tools; DWQ recovers it for free.
-- **Quant curve (Qwen3-Coder-30B):** quality saturates at 4-bit-DWQ; 6/8-bit add
-  memory + halve speed (90→59 t/s) for **no quality gain**. Don't pay for 8-bit.
-- **The 80B flagship isn't worth it here:** Coder-Next scores *lower* than DWQ-4bit
-  on HumanEval+ (0.872 vs 0.902), is slower (67 vs 90), and uses 2× memory.
-- **MoE (A3B) crushes dense on speed:** A3B models 59–90 t/s; dense devstral-24B
-  13 t/s, qwen2.5-32b **7 t/s** — 5–13× slower. Dense models are non-starters for
-  interactive single-user use on this box regardless of quality.
-- **\*Serving-path caveat (not a model verdict):** gpt-oss (harmony channels) and
-  devstral/qwen2.5 (Mistral/`[TOOL_CALLS]`) emit tool-calls in formats
-  `mlx_lm.server`'s OpenAI endpoint does **not** parse into `tool_calls` — so they
-  score ~1/6 on tools and gpt-oss leaks `<|channel|>analysis<|message|>` as content
-  (tanking its needle test). They *can* code; they just can't tool-call through
-  this serving path. **For agentic use on mlx_lm.server, use the Qwen3-Coder family.**
-- **†qwen2.5 HumanEval+** first run hit 0.0 — a harness artifact (concurrent
-  generation timeouts at 7 t/s, since MLX doesn't batch), not the model. Re-run at
-  concurrency 1 deferred to end of run (changes no ranking — disqualified on 7 t/s
-  speed regardless; verified separately that it generates correct code).
+  memory (20–25 GB), top coding (HumanEval+ 0.933/0.902 — the single best HE+ score),
+  tools ✓, 32k ✓.
+- **DWQ is decisively worth it:** vanilla 4-bit = 0.860/0.811 HE+ and 5/6 tools;
+  DWQ-4bit = 0.933/0.902 at the *same* 4-bit speed/memory. The distillation recovers
+  (and on HE+ slightly exceeds) the higher-bit quants.
+- **Quant saturates by 4-bit-DWQ:** DWQ-4bit (0.933) ≈ 6-bit (0.927) ≈ 8-bit (0.927)
+  on HE+, all ~0.91 on MBPP+ — but 6/8-bit cost 1.3–1.8× memory and halve speed
+  (90→59 t/s) for **no quality gain**. Don't pay for more bits.
+- **The 80B flagship isn't worth it here:** Coder-Next 0.909/0.872 HE+ — *below*
+  DWQ-4bit — while 67 t/s and 2× the memory.
+- **MoE (A3B) crushes dense on speed:** A3B 59–90 t/s; dense devstral-24B 13, qwen2.5-32b
+  **7** — 5–13× slower. qwen2.5-32b codes well (0.902 HE+) but 7 t/s disqualifies it
+  for interactive single-user use.
+- **F5† serving-path caveat (not a model verdict):** gpt-oss (harmony channels) and
+  devstral/qwen2.5 (Mistral `[TOOL_CALLS]`) emit tool-calls in formats `mlx_lm.server`'s
+  OpenAI endpoint doesn't parse — re-served via **llama.cpp `--jinja`** to score the
+  tool/long-context axis fairly (results in the F5 section). They code fine on mlx; the
+  tool failure was the serving path, not the model.
 
 ## L2 — Agent harness shootout (model = 30b-a3b-4bit-DWQ, via measurement proxy)
 

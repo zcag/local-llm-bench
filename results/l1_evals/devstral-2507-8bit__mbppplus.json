@@ -1,0 +1,10 @@
+{
+  "model_tag": "devstral-2507-8bit",
+  "model": "mlx-community/Devstral-Small-2507-8bit",
+  "eval": "mbpp+",
+  "pass@1_base": 0.812,
+  "pass@1_plus": 0.709,
+  "score": 0.709,
+  "n": 378,
+  "raw": ""
+}

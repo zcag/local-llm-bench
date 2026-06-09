@@ -7,7 +7,9 @@ Status: CONFIRMED (verified in data/code) · FLAGGED (plausible, needs check) ·
 - F3 (MLX concurrency wired) ✓ — log shows `Prompt Cache: 10 sequences`; corrected finding: MLX batches but aggregate throughput stays flat (~80); llama.cpp scales 63→134.
 - F4 (matched-bpw mlx-4bit vs Q4_K_M) ✓ — MLX single-stream win survives (89/19.9 vs 71/25.8); not DWQ.
 - F8 (-ub 2048), F12 (spread), F15 (ollama ctx), F18 (config per row), F19 (cold-first/soak-last) ✓.
-- Open: F2, F5, F6, F7, F10, F13, F14, F16, F17 + breadth queue.
+- F2 (coding independence) ✓ — re-ran all 8 at concurrency=1 w/ saved samples; ALL scores now distinct (ties were a timeout artifact); qwen2.5 0.0→0.902 (matches published ~0.90); HE+ & MBPP+ table rewritten. DWQ-4bit confirmed top.
+- F10/F13/F14 ✓ (code). MLC=wall, ollama-MLX=n/a (documented).
+- Open: F5 (+ L1 bfcl/ifeval/longctx re-eval pass), F6/F7 (L2 redo), F16, F17, spec-decode, SWE-bench, L3.
 Nothing is a trusted result until its issue here is resolved AND verified with evidence (CONFIG.md).
 
 ## CRITICAL — invalidate published findings, must fix + re-run
