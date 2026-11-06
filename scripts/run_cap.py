@@ -115,10 +115,12 @@ def main():
     ap.add_argument("model")
     ap.add_argument("--tasks", required=True)
     ap.add_argument("--out", required=True)
+    ap.add_argument("--no-prompt-limit", action="store_true", help="for models where the server cannot count prompt tokens")
     args = ap.parse_args()
+    limit = [] if args.no_prompt_limit else ["--max-prompt-tokens", "80000"]
     logpath = f"/tmp/cap-{re.sub(r'[^A-Za-z0-9._-]', '_', args.model)}.log"
     server = subprocess.Popen(["rapid-mlx", "--no-banner", "--no-telemetry", "--disable-version-check", "serve", args.model,
-                               "--port", str(PORT), "--cache-memory-mb", "8192", "--max-prompt-tokens", "80000"],
+                               "--port", str(PORT), "--cache-memory-mb", "8192", *limit],
                               stdout=open(logpath, "w"), stderr=subprocess.STDOUT, start_new_session=True,
                               env={**os.environ, "RAPID_MLX_PREFIX_CACHE_SHUTDOWN_BUDGET": "60"})
     try:
@@ -141,6 +143,8 @@ def main():
                     continue
                 battery = wait_for_power()
                 row = mcp_task(args.model) if task == "mcp" else coding_task(args.model, task, args.tasks, out)
+                if row["result"].strip().startswith("API Error"):
+                    raise SystemExit(f"invalid run, {task}: {row['result'][:200]}")
                 row.update(model=args.model, battery=battery, at=time.strftime("%H:%M:%S"))
                 out.write(json.dumps(row) + "\n")
                 out.flush()
