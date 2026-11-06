@@ -61,7 +61,9 @@ def run_claude(model, prompt, cwd, tools, timeout, mcp):
             row = json.loads(line)
         except ValueError:
             continue
-        for block in (row.get("message") or {}).get("content") or []:
+        message = row.get("message")
+        content = message.get("content") if isinstance(message, dict) else None
+        for block in content if isinstance(content, list) else []:
             if not isinstance(block, dict):
                 continue
             if block.get("type") == "tool_use":
@@ -129,8 +131,14 @@ def main():
             except OSError:
                 time.sleep(2)
         tasks = sorted(d for d in os.listdir(args.tasks) if os.path.isdir(os.path.join(args.tasks, d)))[:TASK_LIMIT]
+        done = set()
+        if os.path.exists(args.out):
+            rows = [json.loads(line) for line in open(args.out)]
+            done = {"mcp" if r["kind"] == "mcp" else r["task"] for r in rows if r["model"] == args.model}
         with open(args.out, "a") as out:
             for task in ["mcp", *tasks]:
+                if task in done:
+                    continue
                 battery = wait_for_power()
                 row = mcp_task(args.model) if task == "mcp" else coding_task(args.model, task, args.tasks, out)
                 row.update(model=args.model, battery=battery, at=time.strftime("%H:%M:%S"))
