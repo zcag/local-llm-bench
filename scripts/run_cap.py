@@ -116,8 +116,11 @@ def main():
     ap.add_argument("--tasks", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--no-prompt-limit", action="store_true", help="for models where the server cannot count prompt tokens")
+    ap.add_argument("--kv-bytes-per-token", help="measured KV size, when the server's own estimate refuses real prompts")
     args = ap.parse_args()
     limit = [] if args.no_prompt_limit else ["--max-prompt-tokens", "80000"]
+    if args.kv_bytes_per_token:
+        limit += ["--metal-cap-kv-bytes-per-token", args.kv_bytes_per_token]
     logpath = f"/tmp/cap-{re.sub(r'[^A-Za-z0-9._-]', '_', args.model)}.log"
     server = subprocess.Popen(["rapid-mlx", "--no-banner", "--no-telemetry", "--disable-version-check", "serve", args.model,
                                "--port", str(PORT), "--cache-memory-mb", "8192", *limit],
