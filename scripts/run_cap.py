@@ -9,6 +9,8 @@ import argparse, json, os, re, shutil, signal, subprocess, tempfile, time, urlli
 PORT = 8102
 TASK_LIMIT = 10
 TASK_TIMEOUT = 900
+EXTRA_CLAUDE_ARGS = []
+STREAM_FILE = None
 SUFFIX = ("\n\n---\nImplement the solution by editing {files} in the current "
           "working directory. Edit the file(s) directly; do not create new files.")
 CODING_TOOLS = "Read,Write,Edit,Glob,Grep,Bash(python3 *),Bash(pytest *),Bash(ls *),Bash(cat *)"
@@ -46,6 +48,7 @@ def run_claude(model, prompt, cwd, tools, timeout, mcp):
            "--verbose", "--allowedTools", tools, "--exclude-dynamic-system-prompt-sections"]
     if not mcp:
         cmd += ["--strict-mcp-config", "--mcp-config", '{"mcpServers":{}}']
+    cmd += EXTRA_CLAUDE_ARGS
     start = time.time()
     proc = subprocess.Popen(cmd, cwd=cwd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True, start_new_session=True)
     try:
@@ -55,6 +58,9 @@ def run_claude(model, prompt, cwd, tools, timeout, mcp):
         os.killpg(proc.pid, signal.SIGKILL)
         out, _ = proc.communicate()
         timed_out = True
+    if STREAM_FILE:
+        with open(STREAM_FILE, "a") as saved:
+            saved.write(out)
     tool_calls, tool_errors, result, usage = [], 0, "", {}
     for line in out.splitlines():
         try:
@@ -111,17 +117,27 @@ def mcp_task(model):
 
 
 def main():
+    global EXTRA_CLAUDE_ARGS, STREAM_FILE, TASK_TIMEOUT
     ap = argparse.ArgumentParser()
     ap.add_argument("model")
     ap.add_argument("--tasks", required=True)
     ap.add_argument("--out", required=True)
     ap.add_argument("--no-prompt-limit", action="store_true", help="for models where the server cannot count prompt tokens")
     ap.add_argument("--kv-bytes-per-token", help="measured KV size, when the server's own estimate refuses real prompts")
+    ap.add_argument("--label", help="row name for a variant of a model")
+    ap.add_argument("--effort", help="Claude Code effort level")
+    ap.add_argument("--no-web", action="store_true", help="deny WebFetch and WebSearch, which local runs only waste time on")
+    ap.add_argument("--task-timeout", type=int, default=TASK_TIMEOUT)
     args = ap.parse_args()
+    TASK_TIMEOUT = args.task_timeout
+    EXTRA_CLAUDE_ARGS = (["--effort", args.effort] if args.effort else []) + (["--disallowedTools", "WebFetch,WebSearch"] if args.no_web else [])
+    name = args.label or args.model
+    slug = re.sub(r"[^A-Za-z0-9._-]", "_", name)
+    STREAM_FILE = os.path.join(os.path.dirname(os.path.abspath(args.out)), f"stream-{slug}.jsonl")
     limit = [] if args.no_prompt_limit else ["--max-prompt-tokens", "80000"]
     if args.kv_bytes_per_token:
         limit += ["--metal-cap-kv-bytes-per-token", args.kv_bytes_per_token]
-    logpath = f"/tmp/cap-{re.sub(r'[^A-Za-z0-9._-]', '_', args.model)}.log"
+    logpath = f"/tmp/cap-{slug}.log"
     server = subprocess.Popen(["rapid-mlx", "--no-banner", "--no-telemetry", "--disable-version-check", "serve", args.model,
                                "--port", str(PORT), "--cache-memory-mb", "8192", *limit],
                               stdout=open(logpath, "w"), stderr=subprocess.STDOUT, start_new_session=True,
@@ -139,7 +155,7 @@ def main():
         done = set()
         if os.path.exists(args.out):
             rows = [json.loads(line) for line in open(args.out)]
-            done = {"mcp" if r["kind"] == "mcp" else r["task"] for r in rows if r["model"] == args.model}
+            done = {"mcp" if r["kind"] == "mcp" else r["task"] for r in rows if r["model"] == name}
         with open(args.out, "a") as out:
             for task in ["mcp", *tasks]:
                 if task in done:
@@ -148,7 +164,7 @@ def main():
                 row = mcp_task(args.model) if task == "mcp" else coding_task(args.model, task, args.tasks, out)
                 if row["result"].strip().startswith("API Error"):
                     raise SystemExit(f"invalid run, {task}: {row['result'][:200]}")
-                row.update(model=args.model, battery=battery, at=time.strftime("%H:%M:%S"))
+                row.update(model=name, battery=battery, at=time.strftime("%H:%M:%S"))
                 out.write(json.dumps(row) + "\n")
                 out.flush()
                 print(row["task"], "PASS" if row["passed"] else "fail", row["seconds"], "s", flush=True)
