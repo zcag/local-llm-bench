@@ -128,15 +128,18 @@ def main():
     ap.add_argument("--effort", help="Claude Code effort level")
     ap.add_argument("--no-web", action="store_true", help="deny WebFetch and WebSearch, which local runs only waste time on")
     ap.add_argument("--task-timeout", type=int, default=TASK_TIMEOUT)
+    ap.add_argument("--claude-arg", action="append", default=[], help="repeatable, write as --claude-arg=--flag")
+    ap.add_argument("--server-arg", action="append", default=[], help="repeatable, write as --server-arg=--flag")
     args = ap.parse_args()
     TASK_TIMEOUT = args.task_timeout
-    EXTRA_CLAUDE_ARGS = (["--effort", args.effort] if args.effort else []) + (["--disallowedTools", "WebFetch,WebSearch"] if args.no_web else [])
+    EXTRA_CLAUDE_ARGS = (["--effort", args.effort] if args.effort else []) + (["--disallowedTools", "WebFetch,WebSearch"] if args.no_web else []) + args.claude_arg
     name = args.label or args.model
     slug = re.sub(r"[^A-Za-z0-9._-]", "_", name)
     STREAM_FILE = os.path.join(os.path.dirname(os.path.abspath(args.out)), f"stream-{slug}.jsonl")
     limit = [] if args.no_prompt_limit else ["--max-prompt-tokens", "80000"]
     if args.kv_bytes_per_token:
         limit += ["--metal-cap-kv-bytes-per-token", args.kv_bytes_per_token]
+    limit += args.server_arg
     logpath = f"/tmp/cap-{slug}.log"
     server = subprocess.Popen(["rapid-mlx", "--no-banner", "--no-telemetry", "--disable-version-check", "serve", args.model,
                                "--port", str(PORT), "--cache-memory-mb", "8192", *limit],
