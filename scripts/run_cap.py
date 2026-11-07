@@ -116,6 +116,35 @@ def mcp_task(model):
     return row
 
 
+def footprint_gb(pid):
+    out = subprocess.run(["top", "-l", "1", "-pid", str(pid), "-stats", "mem"], capture_output=True, text=True).stdout.split()
+    match = re.match(r"([\d.]+)([KMG])", out[-1] if out else "")
+    return float(match.group(1)) * {"K": 1e-6, "M": 1e-3, "G": 1}[match.group(2)] if match else 0.0
+
+
+def require_free_memory(min_free_pct=60):
+    others = subprocess.run(["pgrep", "-f", "rapid-mlx.*serve"], capture_output=True, text=True).stdout.split()
+    loaded = [(pid, footprint_gb(pid)) for pid in others if footprint_gb(pid) > 2]
+    pressure = subprocess.run(["memory_pressure", "-Q"], capture_output=True, text=True).stdout
+    free = re.search(r"free percentage: (\d+)%", pressure)
+    free = int(free.group(1)) if free else 0
+    if loaded or free < min_free_pct:
+        raise SystemExit(f"refusing to start: model servers holding memory {loaded}, {free}% free")
+
+
+def stop(server):
+    os.killpg(server.pid, signal.SIGTERM)
+    try:
+        server.wait(60)
+    except subprocess.TimeoutExpired:
+        os.killpg(server.pid, signal.SIGKILL)
+    for _ in range(90):
+        if subprocess.run(["kill", "-0", str(server.pid)], capture_output=True).returncode != 0:
+            return
+        time.sleep(2)
+    print(f"warning: server {server.pid} still exiting after 3 min; the next run will refuse to start", flush=True)
+
+
 def main():
     global EXTRA_CLAUDE_ARGS, STREAM_FILE, TASK_TIMEOUT
     ap = argparse.ArgumentParser()
@@ -141,6 +170,7 @@ def main():
         limit += ["--metal-cap-kv-bytes-per-token", args.kv_bytes_per_token]
     limit += args.server_arg
     logpath = f"/tmp/cap-{slug}.log"
+    require_free_memory()
     server = subprocess.Popen(["rapid-mlx", "--no-banner", "--no-telemetry", "--disable-version-check", "serve", args.model,
                                "--port", str(PORT), "--cache-memory-mb", "8192", *limit],
                               stdout=open(logpath, "w"), stderr=subprocess.STDOUT, start_new_session=True,
@@ -172,11 +202,7 @@ def main():
                 out.flush()
                 print(row["task"], "PASS" if row["passed"] else "fail", row["seconds"], "s", flush=True)
     finally:
-        os.killpg(server.pid, signal.SIGTERM)
-        try:
-            server.wait(60)
-        except subprocess.TimeoutExpired:
-            os.killpg(server.pid, signal.SIGKILL)
+        stop(server)
 
 
 if __name__ == "__main__":
