@@ -12,6 +12,8 @@ the [tela blog](https://tela.cagdas.io/spaces/10/pages/229/benchmarking-a-whole-
   silently corrupt local-LLM benchmarks, the ones we fell into, and how each was
   caught and fixed. If you only read one page, read this.
 - **[reproduce.md](reproduce.md)** — run it on your own Apple Silicon box.
+- **[claude-code-m5max.md](claude-code-m5max.md)**: November 2026 follow-up, local models inside real
+  Claude Code on a 36 GB M5 Max: standings, where the time goes, the cache settings that matter.
 - Per-layer detail lives in [`../FINDINGS.md`](../FINDINGS.md) (results),
   [`../CONFIG.md`](../CONFIG.md) (the config ledger), and [`../FIXES.md`](../FIXES.md)
   (audit findings + fix status).
